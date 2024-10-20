@@ -15,6 +15,7 @@ public class TrackingEntry {
     private final SimpleStringProperty details;
     private final SimpleDoubleProperty amount;
     private final DoubleProperty balance;
+
     public TrackingEntry(
             LocalDate date,
             LocalDate effectiveDate,
@@ -26,7 +27,7 @@ public class TrackingEntry {
     {
         this.date = date;
         this.effectiveDate = effectiveDate;
-        this.type = new SimpleObjectProperty<BudgetType>(type);
+        this.type = new SimpleObjectProperty<>(type);
         this.category = new SimpleStringProperty(category);
         this.details = new SimpleStringProperty(details);
         this.amount = new SimpleDoubleProperty(amount);

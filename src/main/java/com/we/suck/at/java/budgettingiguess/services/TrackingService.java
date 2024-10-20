@@ -7,16 +7,14 @@ import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class TrackingService {
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
     private final ObservableList<BudgetType> budgetTypesObservableList;
     private final ObservableList<String> categoryObservableList;
 
-    public TrackingService()
-    {
+    public TrackingService() {
         categoryObservableList = FXCollections.observableArrayList();
         trackingEntryObservableList = FXCollections.observableArrayList();
         budgetTypesObservableList = FXCollections.observableArrayList();
@@ -35,26 +33,25 @@ public class TrackingService {
     }
 
     public ObservableList<String> GetCategoryList(){
+        UpdateCategories(GetBudgetTypeList().getFirst());
         return categoryObservableList;
     }
 
-    private void initializeBudgetTypeList()
-    {
+    private void initializeBudgetTypeList() {
         budgetTypesObservableList.add(BudgetType.Income);
         budgetTypesObservableList.add(BudgetType.Expense);
         budgetTypesObservableList.add(BudgetType.Saving);
     }
 
-    private void setupDummyData()
-    {
+    private void setupDummyData() {
         trackingEntryObservableList.add(new TrackingEntry(
                 LocalDate.of(2024, Month.AUGUST, 19),
                 LocalDate.of(2024, Month.AUGUST, 19),
                 BudgetType.Income,
                 "Employment",
                 "Just more monies!",
-                100,
-                100
+                10,
+                10
         ));
         trackingEntryObservableList.add(new TrackingEntry(
                 LocalDate.of(2024, Month.AUGUST, 20),
@@ -63,16 +60,16 @@ public class TrackingService {
                 "Employment",
                 "Not so much monies :(",
                 100,
-                200
+                110
         ));
         trackingEntryObservableList.add(new TrackingEntry(
                 LocalDate.now(),
                 LocalDate.now(),
-                BudgetType.Income,
-                "Employment",
-                "Not so much monies :(",
-                100,
-                300
+                BudgetType.Expense,
+                "Rent",
+                "So expensive wtf :(",
+                80,
+                30
         ));
     }
 
@@ -105,7 +102,30 @@ public class TrackingService {
         );
         trackingEntryObservableList.add(entry);
 
-        recalculateBalanceForDate(date);
+        recalculateBalanceForAllDateAfterAndDuring(date);
+    }
+
+    public void DeleteTrackingEntry(TrackingEntry trackingEntry) throws Exception {
+        if(!trackingEntryObservableList.contains(trackingEntry))
+            throw new Exception(trackingEntry + " could not be found.");
+        trackingEntryObservableList.remove(trackingEntry);
+        recalculateBalanceForAllDateAfterAndDuring(trackingEntry.getDate());
+    }
+
+    private void recalculateBalanceForAllDateAfterAndDuring(LocalDate date){
+        List<LocalDate> datesDuringAndAfter =
+                trackingEntryObservableList
+                        .stream()
+                        .filter(p -> !p.getDate().isBefore(date))
+                        .sorted(this::trackerComparer)
+                        .map(TrackingEntry::getDate)
+                        .toList();
+        Set<LocalDate> uniqueDatesDuringAndAfter =
+                new LinkedHashSet<>(datesDuringAndAfter);
+        for(LocalDate uniqueDate : uniqueDatesDuringAndAfter) {
+            recalculateBalanceForDate(uniqueDate);
+        }
+        sortEntriesByDate();
     }
 
     private void recalculateBalanceForDate(LocalDate date){
@@ -118,8 +138,8 @@ public class TrackingService {
         }
 
         Optional<TrackingEntry> lastEntryBeforeDay = trackingEntryObservableList.stream()
-                .filter(p -> p.getDate().isBefore(date)).max((a, b) -> a.getDate().isEqual(b.getDate()) ? 0 : a.getDate().isBefore(b.getDate()) ? -1 : 1);
-        double balanceForDay = 0;
+                .filter(p -> p.getDate().isBefore(date)).max(this::trackerComparer);
+        double balanceForDay;
         if(lastEntryBeforeDay.isEmpty()) {
             balanceForDay = amountDifferenceOnDay;
         }
@@ -132,5 +152,17 @@ public class TrackingService {
         for(TrackingEntry entry : entriesOnDay) {
             entry.setBalance(balanceForDay);
         }
+        sortEntriesByDate();
+    }
+
+    private void sortEntriesByDate() {
+        trackingEntryObservableList.sort(this::trackerComparer);
+    }
+
+    private int trackerComparer(TrackingEntry a, TrackingEntry b){
+        if(a.getDate().isEqual(b.getDate())) {
+            return a.getType() .compareTo(b.getType());
+        }
+        return a.getDate().isBefore(b.getDate()) ? -1 : 1;
     }
 }

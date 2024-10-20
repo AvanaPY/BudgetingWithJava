@@ -18,7 +18,7 @@ import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 
-@SuppressWarnings({"SwitchStatementWithTooFewBranches", "ClassEscapesDefinedScope", "SameParameterValue"})
+@SuppressWarnings({"ClassEscapesDefinedScope", "SameParameterValue"})
 public class HelloController {
 
     // Progression bar in status bar
@@ -64,8 +64,6 @@ public class HelloController {
                 (observableValue, _, _) -> selectTrackingEntry(observableValue.getValue()));
 
         datePicker.setValue(LocalDate.now());
-        amountTextField.setText("10");
-        detailsTextArea.setText("Generic Income");
         initializeComboBoxes();
         updateCategoryComboBoxFromTypeComboBoxActiveType();
     }
@@ -147,9 +145,6 @@ public class HelloController {
         Double amount           = Utils.parseTextAsDoubleOrNull(amountTextField.getText());
 
         trackingService.addNewEntry(date, budgetType, category, details, amount);
-
-
-
         forceRefresh();
     }
 
@@ -182,35 +177,55 @@ public class HelloController {
         updateCategoryComboBoxFromTypeComboBoxActiveType();
     }
 
-    public void selectTrackingEntry(TrackingEntry entry)
-    {
+    public void selectTrackingEntry(TrackingEntry entry) {
         if(entry == null)
             return;
+
+        System.out.println("Selected " + entry);
 
         selectedTrackingEntry = entry;
         submitEntryDataButton.setText("Update selected");
 
         datePicker.setValue(selectedTrackingEntry.getDate());
         budgetTypeComboBox.setValue(selectedTrackingEntry.getType());
+        categoryComboBox.setValue(selectedTrackingEntry.getCategory());
+        amountTextField.setText(selectedTrackingEntry.getAmount().toString());
+        detailsTextArea.setText(selectedTrackingEntry.getDetails());
     }
 
     public void tableViewOnKeyPressed(KeyEvent event){
         System.out.println(event);
         if(event.getEventType() == KeyEvent.KEY_PRESSED){
             switch(event.getCode()){
-                case ESCAPE -> Platform.runLater(this::clearSelection);
+                case ESCAPE -> clearSelection();
+                case DELETE -> {
+                    try {
+                        clearSelection();
+                        trackingTableView.getSelectionModel().clearSelection();
+                        trackingService.DeleteTrackingEntry(selectedTrackingEntry);
+                        forceRefresh();
+                    } catch (Exception e) {
+                        System.out.println("Failed to delete entry: " + e.getMessage());
+                    }
+                }
                 default -> {}
+
             }
         }
     }
 
-    public void clearSelection()
-    {
+    public void clearSelection() {
         // This can be called from a different thread (i.e. when handling keyboard events I guess?) so wrap it in a runnable
         Platform.runLater(() -> {
             selectedTrackingEntry = null;
             submitEntryDataButton.setText("Submit");
             trackingTableView.getSelectionModel().clearSelection();
+
+            datePicker.setValue(LocalDate.now());
+            budgetTypeComboBox.setValue(trackingService.GetBudgetTypeList().getFirst());
+            categoryComboBox.setValue(trackingService.GetCategoryList().getFirst());
+            amountTextField.setText("");
+            detailsTextArea.setText("");
         });
     }
 }
