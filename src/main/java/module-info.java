@@ -1,4 +1,4 @@
-module com.we.suck.at.java.budgettingiguess {
+module org.sture.worlddomination.budgettingiguess {
     requires javafx.controls;
     requires javafx.fxml;
 
@@ -6,9 +6,9 @@ module com.we.suck.at.java.budgettingiguess {
     requires org.kordamp.bootstrapfx.core;
     requires java.desktop;
 
-    opens com.we.suck.at.java.budgettingiguess to javafx.fxml;
-    opens com.we.suck.at.java.budgettingiguess.models to javafx.base;
-    exports com.we.suck.at.java.budgettingiguess;
-    exports com.we.suck.at.java.budgettingiguess.di;
-    exports com.we.suck.at.java.budgettingiguess.exceptions.di;
+    opens org.sture.java.budgeting to javafx.fxml;
+    opens org.sture.java.budgeting.models to javafx.base;
+    exports org.sture.java.budgeting;
+    exports org.sture.java.budgeting.di;
+    exports org.sture.java.budgeting.exceptions.di;
 }
