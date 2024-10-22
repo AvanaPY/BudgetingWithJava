@@ -34,6 +34,18 @@ public class TrackingEntry {
         this.balance = new SimpleDoubleProperty(balance);
     }
 
+    @Override
+    public String toString(){
+        return "[%s %s | %s %s %s | %s %s]".formatted(
+                getDate(),
+                getEffectiveDate(),
+                getType(),
+                getCategory(),
+                getDetails(),
+                getAmount(),
+                getBalance());
+    }
+
     public LocalDate getDate()
     {
         return date;
@@ -59,19 +71,35 @@ public class TrackingEntry {
         return details.get();
     }
 
-    public Double getAmount()
+    public double getAmount()
     {
-        return amount.get();
+        return (double)amount.get();
     }
 
-    public Double getBalance()
+    public double getBalance()
     {
-        return balance.get();
+        return ((double) balance.get());
     }
 
     public void setBalance(double value)
     {
         balance.setValue(value);
+    }
+
+    @Override
+    public boolean equals(Object o){
+        boolean result = false;
+        if(o instanceof TrackingEntry to)
+        {
+            result = to.getDate().equals(getDate())
+                    && to.getEffectiveDate().equals(getEffectiveDate())
+                    && to.getType() == getType()
+                    && to.getCategory().equals(getCategory())
+                    && to.getDetails().equals(getDetails())
+                    && to.getAmount() == getAmount()
+                    && to.getBalance() == getBalance();
+        }
+        return result;
     }
 }
 

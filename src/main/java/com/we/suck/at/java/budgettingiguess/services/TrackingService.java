@@ -1,25 +1,33 @@
 package com.we.suck.at.java.budgettingiguess.services;
 
+import com.we.suck.at.java.budgettingiguess.exceptions.InvalidEntryException;
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 
 public class TrackingService {
+    private final TrackingEntryStoreService storeService;
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
     private final ObservableList<BudgetType> budgetTypesObservableList;
     private final ObservableList<String> categoryObservableList;
 
     public TrackingService() {
-        categoryObservableList = FXCollections.observableArrayList();
         trackingEntryObservableList = FXCollections.observableArrayList();
+        categoryObservableList = FXCollections.observableArrayList();
         budgetTypesObservableList = FXCollections.observableArrayList();
 
-        setupDummyData();
+        storeService = new TrackingEntryStoreService();
+        var loadedData = storeService.Read();
+        if(loadedData != null){
+            trackingEntryObservableList.addAll(loadedData);
+        }
+    }
+
+    public void initialize(){
         initializeBudgetTypeList();
         UpdateCategories(BudgetType.Income);
     }
@@ -33,7 +41,6 @@ public class TrackingService {
     }
 
     public ObservableList<String> GetCategoryList(){
-        UpdateCategories(GetBudgetTypeList().getFirst());
         return categoryObservableList;
     }
 
@@ -41,36 +48,6 @@ public class TrackingService {
         budgetTypesObservableList.add(BudgetType.Income);
         budgetTypesObservableList.add(BudgetType.Expense);
         budgetTypesObservableList.add(BudgetType.Saving);
-    }
-
-    private void setupDummyData() {
-        trackingEntryObservableList.add(new TrackingEntry(
-                LocalDate.of(2024, Month.AUGUST, 19),
-                LocalDate.of(2024, Month.AUGUST, 19),
-                BudgetType.Income,
-                "Employment",
-                "Just more monies!",
-                10,
-                10
-        ));
-        trackingEntryObservableList.add(new TrackingEntry(
-                LocalDate.of(2024, Month.AUGUST, 20),
-                LocalDate.of(2024, Month.AUGUST, 20),
-                BudgetType.Income,
-                "Employment",
-                "Not so much monies :(",
-                100,
-                110
-        ));
-        trackingEntryObservableList.add(new TrackingEntry(
-                LocalDate.now(),
-                LocalDate.now(),
-                BudgetType.Expense,
-                "Rent",
-                "So expensive wtf :(",
-                80,
-                30
-        ));
     }
 
     public void UpdateCategories(BudgetType type){
@@ -84,13 +61,15 @@ public class TrackingService {
             BudgetType type,
             String category,
             String details,
-            Double amount) {
-
+            Double amount) throws InvalidEntryException {
         if(date == null || amount == null)
             return;
 
-        LocalDate effectiveDate = date.getDayOfMonth() < 23 ? date : LocalDate.of(date.getYear(), date.getMonthValue() + 1, 1);
+        verifyValidCategoryForBudgetType(type, category);
+        if(amount <= 0)
+            throw new InvalidEntryException("\"Amount\" cannot be less than or equal to zero. Received: " + amount);
 
+        LocalDate effectiveDate = date.getDayOfMonth() < 23 ? date : LocalDate.of(date.getYear(), date.getMonthValue() + 1, 1);
         TrackingEntry entry = new TrackingEntry(
                 date,
                 effectiveDate,
@@ -100,14 +79,33 @@ public class TrackingService {
                 amount,
                 0d
         );
-        trackingEntryObservableList.add(entry);
+
+        // Find where to insert it in the list such that the list stays sorted
+        boolean inserted = false;
+        for(int i = 0; i < trackingEntryObservableList.size(); i++) {
+            if(trackingEntryObservableList.get(i).getDate().isAfter(date)){
+                trackingEntryObservableList.add(i, entry);
+                inserted = true;
+                break;
+            }
+        }
+        if(!inserted)
+            trackingEntryObservableList.add(entry);
 
         recalculateBalanceForAllDateAfterAndDuring(date);
     }
 
-    public void DeleteTrackingEntry(TrackingEntry trackingEntry) throws Exception {
+    private void verifyValidCategoryForBudgetType(BudgetType type, String category) {
+        String[] validCategories = CategoryProvider.GenerateCategoriesFromBudgetType(type);
+        for(String validCat : validCategories)
+            if(category.equals(validCat))
+                return;
+        throw new InvalidEntryException("Category <" + category + "> is an invalid category. Expected any of " + Arrays.toString(validCategories));
+    }
+
+    public void DeleteTrackingEntry(TrackingEntry trackingEntry) {
         if(!trackingEntryObservableList.contains(trackingEntry))
-            throw new Exception(trackingEntry + " could not be found.");
+            return;
         trackingEntryObservableList.remove(trackingEntry);
         recalculateBalanceForAllDateAfterAndDuring(trackingEntry.getDate());
     }
@@ -125,7 +123,6 @@ public class TrackingService {
         for(LocalDate uniqueDate : uniqueDatesDuringAndAfter) {
             recalculateBalanceForDate(uniqueDate);
         }
-        sortEntriesByDate();
     }
 
     private void recalculateBalanceForDate(LocalDate date){
@@ -152,7 +149,6 @@ public class TrackingService {
         for(TrackingEntry entry : entriesOnDay) {
             entry.setBalance(balanceForDay);
         }
-        sortEntriesByDate();
     }
 
     private void sortEntriesByDate() {

@@ -17,7 +17,8 @@ public class CategoryProvider {
                 return new String[] {
                         "Rent",
                         "Utilities",
-                        "Entertainment"
+                        "Entertainment",
+                        ""
                 };
             }
             case Saving -> {

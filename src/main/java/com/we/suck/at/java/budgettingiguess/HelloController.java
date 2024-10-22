@@ -6,6 +6,7 @@ import com.we.suck.at.java.budgettingiguess.services.TrackingService;
 import com.we.suck.at.java.budgettingiguess.utils.ProgressOperator;
 import com.we.suck.at.java.budgettingiguess.utils.Utils;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
@@ -50,6 +51,7 @@ public class HelloController {
 
     public void initialize() {
         trackingService = new TrackingService();
+        trackingService.initialize();
 
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         effectiveDateColumn.setCellValueFactory(new PropertyValueFactory<>("effectiveDate"));
@@ -189,7 +191,7 @@ public class HelloController {
         datePicker.setValue(selectedTrackingEntry.getDate());
         budgetTypeComboBox.setValue(selectedTrackingEntry.getType());
         categoryComboBox.setValue(selectedTrackingEntry.getCategory());
-        amountTextField.setText(selectedTrackingEntry.getAmount().toString());
+        amountTextField.setText(String.valueOf(selectedTrackingEntry.getAmount()));
         detailsTextArea.setText(selectedTrackingEntry.getDetails());
     }
 
@@ -227,5 +229,10 @@ public class HelloController {
             amountTextField.setText("");
             detailsTextArea.setText("");
         });
+    }
+
+    @FXML
+    public void exitApplication(ActionEvent event){
+        System.out.println("owo");
     }
 }
