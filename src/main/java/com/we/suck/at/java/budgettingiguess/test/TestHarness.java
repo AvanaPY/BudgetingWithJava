@@ -10,4 +10,9 @@ public class TestHarness {
     public static boolean isRunningFromTestHarness(){
         return runningFromTestHarness;
     }
+
+    public static void resetUnderTest() {
+        if(isRunningFromTestHarness())
+            runningFromTestHarness = false;
+    }
 }
