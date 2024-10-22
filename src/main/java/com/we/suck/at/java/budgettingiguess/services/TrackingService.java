@@ -4,25 +4,36 @@ import com.we.suck.at.java.budgettingiguess.exceptions.InvalidEntryException;
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.*;
 
 public class TrackingService {
+    private final TrackingEntryStoreService storeService;
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
     private final ObservableList<BudgetType> budgetTypesObservableList;
     private final ObservableList<String> categoryObservableList;
 
-    public TrackingService(TrackingEntryStoreService trackingEntryStoreService) {
+    public TrackingService(TrackingEntryStoreService storeService) {
+        this.storeService = storeService;
         trackingEntryObservableList = FXCollections.observableArrayList();
         categoryObservableList = FXCollections.observableArrayList();
         budgetTypesObservableList = FXCollections.observableArrayList();
 
-        var loadedData = trackingEntryStoreService.Read();
+        trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> {
+            updateStore();
+        });
+
+        var loadedData = storeService.Read();
         if(loadedData != null){
             trackingEntryObservableList.addAll(loadedData);
         }
+    }
+
+    private void updateStore() {
+        storeService.Store(trackingEntryObservableList);
     }
 
     public void initialize(){

@@ -1,5 +1,6 @@
 package com.we.suck.at.java.budgettingiguess.services;
 
+import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOFactory;
 import com.we.suck.at.java.budgettingiguess.exceptions.InvalidEntryException;
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
@@ -14,10 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TrackingServiceTest {
     private TrackingService trackingService;
+    private TrackingEntryStoreService storeService;
 
     @BeforeEach
     void setUp() {
-        TrackingEntryStoreService storeService = new TrackingEntryStoreService();
+        TrackingEntryDTOFactory dtoFactory = new TrackingEntryDTOFactory();
+        storeService = new TrackingEntryStoreService(dtoFactory);
+        storeService.DeleteStoreIfExists();
         trackingService = new TrackingService(storeService);
         trackingService.initialize();
     }
@@ -25,6 +29,8 @@ class TrackingServiceTest {
     @AfterEach
     void tearDown() {
         trackingService = null;
+        storeService.DeleteStoreIfExists();
+        storeService = null;
     }
 
     @Test

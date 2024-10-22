@@ -2,15 +2,12 @@ package com.we.suck.at.java.budgettingiguess.dto;
 
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import com.we.suck.at.java.budgettingiguess.utils.DTO;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class TrackingEntryDTO implements Serializable {
+public class TrackingEntryDTO extends DTO<TrackingEntry> implements Serializable {
     private final LocalDate date;
     private final LocalDate effectiveDate;
     private final BudgetType type;
@@ -28,7 +25,14 @@ public class TrackingEntryDTO implements Serializable {
         this.balance        = entry.getBalance();
     }
 
-    public TrackingEntry toTrackingEntry() {
-        return new TrackingEntry(date, effectiveDate, type, category, details, amount, balance);
+    public TrackingEntry Convert() {
+        return new TrackingEntry(
+                date,
+                effectiveDate,
+                type,
+                category,
+                details,
+                amount,
+                balance);
     }
 }

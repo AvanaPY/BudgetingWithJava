@@ -2,18 +2,14 @@ package com.we.suck.at.java.budgettingiguess;
 
 import com.we.suck.at.java.budgettingiguess.di.DiContainer;
 import com.we.suck.at.java.budgettingiguess.di.RegisterType;
-import com.we.suck.at.java.budgettingiguess.services.CategoryProvider;
-import com.we.suck.at.java.budgettingiguess.services.DirectoryFileProvider;
-import com.we.suck.at.java.budgettingiguess.services.TrackingEntryStoreService;
-import com.we.suck.at.java.budgettingiguess.services.TrackingService;
+import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOFactory;
+import com.we.suck.at.java.budgettingiguess.services.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -24,6 +20,7 @@ public class HelloApplication extends Application {
         container = new DiContainer();
         container.Register(DirectoryFileProvider.class, RegisterType.Singleton);
         container.Register(CategoryProvider.class, RegisterType.Singleton);
+        container.Register(TrackingEntryDTOFactory.class, RegisterType.Singleton);
         container.Register(TrackingService.class, RegisterType.Singleton);
         container.Register(TrackingEntryStoreService.class, RegisterType.Singleton);
 
@@ -45,12 +42,6 @@ public class HelloApplication extends Application {
 
         Image image = new Image("budget-icon.png");
         stage.getIcons().add(image);
-
-        Circle circle = new Circle();
-        circle.setCenterX(stage.getWidth() / 2);
-        circle.setCenterY(stage.getHeight() / 2);
-        circle.setRadius(100);
-        circle.setFill(Color.LIGHTBLUE);
 
         stage.show();
     }

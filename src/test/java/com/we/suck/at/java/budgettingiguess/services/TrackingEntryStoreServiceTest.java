@@ -1,5 +1,6 @@
 package com.we.suck.at.java.budgettingiguess.services;
 
+import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOFactory;
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
@@ -12,15 +13,17 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrackingEntryStoreServiceTest extends BaseTest {
-    private TrackingEntryStoreService trackingEntryStoreService;
+    private TrackingEntryDTOFactory dtoFactory;
+    private TrackingEntryStoreService storeService;
     @BeforeEach
     void setUp() {
-        trackingEntryStoreService = new TrackingEntryStoreService();
+        dtoFactory = new TrackingEntryDTOFactory();
+        storeService = new TrackingEntryStoreService(dtoFactory);
     }
 
     @AfterEach
     void tearDown() {
-        trackingEntryStoreService.DeleteStore();
+        storeService.DeleteStoreIfExists();
     }
 
     @Test
@@ -36,10 +39,10 @@ class TrackingEntryStoreServiceTest extends BaseTest {
         );
 
         // Write
-        trackingEntryStoreService.Store(entry);
+        storeService.Store(entry);
 
         // Read
-        var deserialized = trackingEntryStoreService.Read();
+        var deserialized = storeService.Read();
         assertEquals(1, deserialized.length);
         assertEquals(entry, deserialized[0], "Objects differ: " + entry + " -> " + deserialized[0]);
     }
@@ -55,10 +58,10 @@ class TrackingEntryStoreServiceTest extends BaseTest {
         };
 
         // Write
-        trackingEntryStoreService.Store(entries);
+        storeService.Store(entries);
 
         // Read
-        var objects = trackingEntryStoreService.Read();
+        var objects = storeService.Read();
         assertEquals(entries.length, objects.length);
         assertArrayEquals(entries, objects);
     }
@@ -72,13 +75,13 @@ class TrackingEntryStoreServiceTest extends BaseTest {
         };
 
         // Write
-        trackingEntryStoreService.Store(entries);
+        storeService.Store(entries);
 
         // Remove once
-        assertTrue(trackingEntryStoreService.DeleteStore());
+        assertTrue(storeService.DeleteStoreIfExists());
 
         // Remove second and expect false
-        assertFalse(trackingEntryStoreService.DeleteStore());
+        assertFalse(storeService.DeleteStoreIfExists());
     }
 
     private TrackingEntry generateTrackingEntry(){
