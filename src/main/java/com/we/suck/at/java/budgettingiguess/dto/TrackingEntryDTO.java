@@ -7,7 +7,7 @@ import com.we.suck.at.java.budgettingiguess.utils.DTO;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class TrackingEntryDTO extends DTO<TrackingEntry> implements Serializable {
+public class TrackingEntryDTO implements DTO<TrackingEntry>, Serializable {
     private final LocalDate date;
     private final LocalDate effectiveDate;
     private final BudgetType type;

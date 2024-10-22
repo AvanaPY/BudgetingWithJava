@@ -4,7 +4,7 @@ import com.we.suck.at.java.budgettingiguess.utils.DTO;
 
 import java.util.List;
 
-public interface DTOFactory<T, TDto extends DTO<T>> {
+public interface DTOConverter<T, TDto extends DTO<T>> {
     TDto ConvertToDTO(T t);
     TDto[] DoMagicToDTO(List<TDto> lst);
     T ConvertFromDTO(TDto t);

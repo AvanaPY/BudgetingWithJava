@@ -89,8 +89,10 @@ public class DiContainer {
         T instance;
         try {
             instance = clazz.cast(constructor.newInstance(dependencies));
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new FailedToResolveClassException("Constructor could not create instance of " + clazz);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new FailedToResolveClassException("Constructor could not create instance of " + clazz + ": " + e);
+        } catch (InvocationTargetException e){
+            throw new FailedToResolveClassException("Failed to invoke constructor " + constructor.getName() + ". Dependencies: " + Arrays.toString(dependencies) + " (" + e + ")");
         }
 
         if(registerTypeMap.get(clazz) == RegisterType.Singleton) {

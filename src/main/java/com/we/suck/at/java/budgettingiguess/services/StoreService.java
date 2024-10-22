@@ -1,11 +1,13 @@
 package com.we.suck.at.java.budgettingiguess.services;
 
-import com.we.suck.at.java.budgettingiguess.dto.DTOFactory;
+import com.we.suck.at.java.budgettingiguess.dto.DTOConverter;
 import com.we.suck.at.java.budgettingiguess.utils.DTO;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,12 +15,19 @@ public abstract class StoreService<T, TDto extends DTO<T>> {
     protected final Path dataDirectory = DirectoryFileProvider.GetDataDirectory();
     protected final Path storeFilePath;
 
-    private final DTOFactory<T, TDto> dtoFactory;
+    private final DTOConverter<T, TDto> dtoFactory;
+
     public StoreService(
             String storeFileName,
-            DTOFactory<T, TDto> dtoFactory) {
+            DTOConverter<T, TDto> dtoFactory) {
         storeFilePath = Paths.get(dataDirectory.toString(), storeFileName);
         this.dtoFactory = dtoFactory;
+
+        try {
+            Files.createDirectories(dataDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public final T[] Read() {
@@ -37,10 +46,27 @@ public abstract class StoreService<T, TDto extends DTO<T>> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    public final void Store(T object) {
+        var dto = dtoFactory.ConvertToDTO(object);
+        Store(dto);
+    }
+
+    public final void Store(T[] objects) {
+        var dtoObjects = Arrays.stream(objects).map(dtoFactory::ConvertToDTO).toList();
+        var dtoArray = dtoFactory.DoMagicToDTO(dtoObjects);
+        Store(dtoArray);
+    }
+
     public final void Store(List<T> objects) {
         var dtoObjects = objects.stream().map(dtoFactory::ConvertToDTO).toList();
         var dtoArray = dtoFactory.DoMagicToDTO(dtoObjects);
+        Store(dtoArray);
+    }
+
+    private void Store(TDto obj){
+        var lst = new ArrayList<TDto>();
+        lst.add(obj);
+        var dtoArray = dtoFactory.DoMagicToDTO(lst);
         Store(dtoArray);
     }
 

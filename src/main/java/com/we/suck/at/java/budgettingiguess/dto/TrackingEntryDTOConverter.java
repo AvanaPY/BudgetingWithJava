@@ -4,7 +4,7 @@ import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
 
 import java.util.List;
 
-public class TrackingEntryDTOFactory implements DTOFactory<TrackingEntry, TrackingEntryDTO> {
+public class TrackingEntryDTOConverter implements DTOConverter<TrackingEntry, TrackingEntryDTO> {
     @Override
     public TrackingEntryDTO ConvertToDTO(TrackingEntry trackingEntry) {
         return new TrackingEntryDTO(trackingEntry);

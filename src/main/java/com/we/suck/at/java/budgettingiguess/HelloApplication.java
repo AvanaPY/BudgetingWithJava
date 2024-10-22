@@ -2,7 +2,7 @@ package com.we.suck.at.java.budgettingiguess;
 
 import com.we.suck.at.java.budgettingiguess.di.DiContainer;
 import com.we.suck.at.java.budgettingiguess.di.RegisterType;
-import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOFactory;
+import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOConverter;
 import com.we.suck.at.java.budgettingiguess.services.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -20,9 +20,9 @@ public class HelloApplication extends Application {
         container = new DiContainer();
         container.Register(DirectoryFileProvider.class, RegisterType.Singleton);
         container.Register(CategoryProvider.class, RegisterType.Singleton);
-        container.Register(TrackingEntryDTOFactory.class, RegisterType.Singleton);
-        container.Register(TrackingService.class, RegisterType.Singleton);
+        container.Register(TrackingEntryDTOConverter.class, RegisterType.Singleton);
         container.Register(TrackingEntryStoreService.class, RegisterType.Singleton);
+        container.Register(TrackingService.class, RegisterType.Singleton);
 
         launch(args);
     }

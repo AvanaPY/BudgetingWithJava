@@ -1,6 +1,6 @@
 package com.we.suck.at.java.budgettingiguess.services;
 
-import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOFactory;
+import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOConverter;
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
@@ -13,11 +13,11 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrackingEntryStoreServiceTest extends BaseTest {
-    private TrackingEntryDTOFactory dtoFactory;
+    private TrackingEntryDTOConverter dtoFactory;
     private TrackingEntryStoreService storeService;
     @BeforeEach
     void setUp() {
-        dtoFactory = new TrackingEntryDTOFactory();
+        dtoFactory = new TrackingEntryDTOConverter();
         storeService = new TrackingEntryStoreService(dtoFactory);
     }
 
@@ -43,6 +43,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
 
         // Read
         var deserialized = storeService.Read();
+        assertNotNull(deserialized);
         assertEquals(1, deserialized.length);
         assertEquals(entry, deserialized[0], "Objects differ: " + entry + " -> " + deserialized[0]);
     }
@@ -62,6 +63,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
 
         // Read
         var objects = storeService.Read();
+        assertNotNull(objects);
         assertEquals(entries.length, objects.length);
         assertArrayEquals(entries, objects);
     }

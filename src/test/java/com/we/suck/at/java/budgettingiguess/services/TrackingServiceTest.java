@@ -1,6 +1,6 @@
 package com.we.suck.at.java.budgettingiguess.services;
 
-import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOFactory;
+import com.we.suck.at.java.budgettingiguess.dto.TrackingEntryDTOConverter;
 import com.we.suck.at.java.budgettingiguess.exceptions.InvalidEntryException;
 import com.we.suck.at.java.budgettingiguess.models.BudgetType;
 import com.we.suck.at.java.budgettingiguess.models.TrackingEntry;
@@ -19,7 +19,7 @@ class TrackingServiceTest {
 
     @BeforeEach
     void setUp() {
-        TrackingEntryDTOFactory dtoFactory = new TrackingEntryDTOFactory();
+        TrackingEntryDTOConverter dtoFactory = new TrackingEntryDTOConverter();
         storeService = new TrackingEntryStoreService(dtoFactory);
         storeService.DeleteStoreIfExists();
         trackingService = new TrackingService(storeService);
