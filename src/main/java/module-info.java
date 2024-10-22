@@ -9,4 +9,6 @@ module com.we.suck.at.java.budgettingiguess {
     opens com.we.suck.at.java.budgettingiguess to javafx.fxml;
     opens com.we.suck.at.java.budgettingiguess.models to javafx.base;
     exports com.we.suck.at.java.budgettingiguess;
+    exports com.we.suck.at.java.budgettingiguess.di;
+    exports com.we.suck.at.java.budgettingiguess.exceptions.di;
 }

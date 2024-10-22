@@ -17,7 +17,8 @@ class TrackingServiceTest {
 
     @BeforeEach
     void setUp() {
-        trackingService = new TrackingService();
+        TrackingEntryStoreService storeService = new TrackingEntryStoreService();
+        trackingService = new TrackingService(storeService);
         trackingService.initialize();
     }
 

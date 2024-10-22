@@ -50,7 +50,7 @@ public class HelloController {
     private TrackingEntry selectedTrackingEntry;
 
     public void initialize() {
-        trackingService = new TrackingService();
+        trackingService = HelloApplication.getContainer().ResolveInstance(TrackingService.class);
         trackingService.initialize();
 
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
@@ -60,8 +60,8 @@ public class HelloController {
         detailsColumn.setCellValueFactory(new PropertyValueFactory<>("details"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balance"));
-        trackingTableView.setItems(trackingService.GetTrackingEntryList());
 
+        trackingTableView.setItems(trackingService.GetTrackingEntryList());
         trackingTableView.getSelectionModel().selectedItemProperty().addListener(
                 (observableValue, _, _) -> selectTrackingEntry(observableValue.getValue()));
 

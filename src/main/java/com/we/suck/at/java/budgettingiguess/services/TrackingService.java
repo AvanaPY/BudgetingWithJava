@@ -10,18 +10,16 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class TrackingService {
-    private final TrackingEntryStoreService storeService;
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
     private final ObservableList<BudgetType> budgetTypesObservableList;
     private final ObservableList<String> categoryObservableList;
 
-    public TrackingService() {
+    public TrackingService(TrackingEntryStoreService trackingEntryStoreService) {
         trackingEntryObservableList = FXCollections.observableArrayList();
         categoryObservableList = FXCollections.observableArrayList();
         budgetTypesObservableList = FXCollections.observableArrayList();
 
-        storeService = new TrackingEntryStoreService();
-        var loadedData = storeService.Read();
+        var loadedData = trackingEntryStoreService.Read();
         if(loadedData != null){
             trackingEntryObservableList.addAll(loadedData);
         }
