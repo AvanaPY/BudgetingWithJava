@@ -1,4 +1,4 @@
-package org.sture.java.budgeting.test;
+package org.sture.java.budgeting.utils;
 
 public class TestHarness {
     private static boolean runningFromTestHarness = false;

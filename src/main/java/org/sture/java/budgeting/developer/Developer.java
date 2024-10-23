@@ -1,5 +1,7 @@
 package org.sture.java.budgeting.developer;
 
+import javafx.scene.input.KeyEvent;
+
 public class Developer {
     private static int debugMessageIndent = 0;
     public static boolean DEBUG = false;
@@ -13,6 +15,12 @@ public class Developer {
         {
             String indent = "  ".repeat(debugMessageIndent);
             System.out.println(indent + message);
+        }
+    }
+
+    public static void DebugKeyEvent(KeyEvent event){
+        if(DEBUG){
+            DebugMessage("Caught key event: " + event.getCode());
         }
     }
 

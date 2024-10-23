@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sture.java.budgeting.HelloController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#onKeyPressed" prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sture.java.budgeting.HelloController">
    <bottom>
       <SplitPane dividerPositions="0.5" prefHeight="20.0" prefWidth="1080.0" BorderPane.alignment="CENTER">
         <items>
@@ -75,8 +75,8 @@
                               <Insets />
                            </opaqueInsets>
                         </Label>
-                        <Button layoutX="254.0" layoutY="5.0" mnemonicParsing="false" onAction="#buttonDatePickerDecrementer" text="&lt;" />
-                        <Button layoutX="279.0" layoutY="5.0" mnemonicParsing="false" onAction="#buttonDatePickerIncrementer" text="&gt;" />
+                        <Button fx:id="buttonDecrementDate" layoutX="254.0" layoutY="5.0" mnemonicParsing="false" onAction="#buttonDatePickerDecrementer" text="&lt;" />
+                        <Button fx:id="buttonIncrementDate" layoutX="279.0" layoutY="5.0" mnemonicParsing="false" onAction="#buttonDatePickerIncrementer" text="&gt;" />
                      </children>
                   </AnchorPane>
                   <AnchorPane>
@@ -120,7 +120,7 @@
                   </AnchorPane>
                   <AnchorPane>
                      <children>
-                        <TextArea fx:id="detailsTextArea" layoutX="125.0" layoutY="7.0" prefHeight="87.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" />
+                        <TextArea fx:id="detailsTextArea" layoutX="125.0" layoutY="7.0" onKeyPressed="#onKeyPressed" prefHeight="87.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" />
                         <Label alignment="CENTER_RIGHT" contentDisplay="CENTER" layoutX="35.0" layoutY="5.0" maxWidth="-Infinity" prefHeight="25.0" prefWidth="100.0" text="Details" textAlignment="RIGHT" wrapText="true" AnchorPane.rightAnchor="205.0">
                            <font>
                               <Font name="Verdana" size="12.0" />

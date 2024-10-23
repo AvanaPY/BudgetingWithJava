@@ -1,7 +1,7 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.BaseTest;
-import org.sture.java.budgeting.test.TestHarness;
+import org.sture.java.budgeting.utils.TestHarness;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

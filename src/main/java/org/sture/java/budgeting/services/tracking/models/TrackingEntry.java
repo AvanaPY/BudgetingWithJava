@@ -1,4 +1,4 @@
-package org.sture.java.budgeting.models;
+package org.sture.java.budgeting.services.tracking.models;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;

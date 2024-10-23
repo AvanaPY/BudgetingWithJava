@@ -1,8 +1,8 @@
 package org.sture.java.budgeting.store.dto;
 
-import org.sture.java.budgeting.models.BudgetEntryCategory;
-import org.sture.java.budgeting.models.BudgetEntrySubCategory;
-import org.sture.java.budgeting.models.TrackingEntry;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import org.sture.java.budgeting.utils.DTO;
 
 import java.io.Serializable;

@@ -1,11 +1,12 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.BaseTest;
-import org.sture.java.budgeting.models.BudgetEntryCategory;
-import org.sture.java.budgeting.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.services.tracking.TrackingService;
 import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
-import org.sture.java.budgeting.models.TrackingEntry;
+import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

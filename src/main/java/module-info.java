@@ -7,8 +7,8 @@ module org.sture.worlddomination.budgettingiguess {
     requires java.desktop;
 
     opens org.sture.java.budgeting to javafx.fxml;
-    opens org.sture.java.budgeting.models to javafx.base;
     exports org.sture.java.budgeting;
     exports org.sture.java.budgeting.di;
     exports org.sture.java.budgeting.exceptions.di;
+    opens org.sture.java.budgeting.services.tracking.models to javafx.base;
 }

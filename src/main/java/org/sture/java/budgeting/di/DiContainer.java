@@ -73,8 +73,7 @@ public class DiContainer {
     public <T> T ResolveInstance(Class<T> clazz) throws FailedToResolveClassException {
         Developer.DebugMessage(this + " resolving " + clazz);
 
-        if(singletonRegisteredCache.containsKey(clazz))
-        {
+        if(singletonRegisteredCache.containsKey(clazz)) {
             Developer.DebugMessage(this + " returns singleton instance of " + clazz);
             return clazz.cast(singletonRegisteredCache.get(clazz));
         }

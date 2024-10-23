@@ -1,12 +1,13 @@
-package org.sture.java.budgeting.services;
+package org.sture.java.budgeting.services.tracking;
 
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
-import org.sture.java.budgeting.models.BudgetEntryCategory;
-import org.sture.java.budgeting.models.BudgetEntrySubCategory;
-import org.sture.java.budgeting.models.TrackingEntry;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
 import org.sture.java.budgeting.store.TrackingEntryStoreService;
 
 import java.time.LocalDate;
@@ -27,7 +28,6 @@ public class TrackingService {
         trackingEntryObservableList = FXCollections.observableArrayList();
         budgetEntrySubCategoryObservableList = FXCollections.observableArrayList();
         budgetEntryCategoryObservableList = FXCollections.observableArrayList();
-
 
         trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> updateStore());
 

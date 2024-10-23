@@ -1,6 +1,6 @@
 package org.sture.java.budgeting.services;
 
-import org.sture.java.budgeting.test.TestHarness;
+import org.sture.java.budgeting.utils.TestHarness;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

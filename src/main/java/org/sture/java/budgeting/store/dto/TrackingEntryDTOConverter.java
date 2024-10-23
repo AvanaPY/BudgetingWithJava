@@ -1,6 +1,6 @@
 package org.sture.java.budgeting.store.dto;
 
-import org.sture.java.budgeting.models.TrackingEntry;
+import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 
 import java.util.List;
 

@@ -1,9 +1,11 @@
 package org.sture.java.budgeting;
 
-import org.sture.java.budgeting.models.BudgetEntryCategory;
-import org.sture.java.budgeting.models.BudgetEntrySubCategory;
-import org.sture.java.budgeting.services.DownloadService;
-import org.sture.java.budgeting.services.TrackingService;
+import javafx.event.EventHandler;
+import org.sture.java.budgeting.developer.Developer;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
+import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.services.download.DownloadService;
+import org.sture.java.budgeting.services.tracking.TrackingService;
 import org.sture.java.budgeting.utils.ProgressOperator;
 import org.sture.java.budgeting.utils.Utils;
 import javafx.application.Platform;
@@ -16,7 +18,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.sture.java.budgeting.models.TrackingEntry;
+import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 
@@ -38,12 +40,15 @@ public class HelloController {
     @FXML TableColumn<TrackingEntry, Double> balanceColumn;
 
     // Widgets for adding new data
+    @FXML DatePicker datePicker;
     @FXML ComboBox<BudgetEntryCategory> budgetEntryCategoryComboBox;
     @FXML ComboBox<BudgetEntrySubCategory> budgetEntrySubCategoryComboBox;
-    @FXML DatePicker datePicker;
     @FXML TextField amountTextField;
     @FXML TextArea detailsTextArea;
     @FXML Button submitEntryDataButton;
+
+    @FXML Button buttonIncrementDate;
+    @FXML Button buttonDecrementDate;
 
     // Private
     private TrackingService trackingService;
@@ -56,8 +61,8 @@ public class HelloController {
 
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         effectiveDateColumn.setCellValueFactory(new PropertyValueFactory<>("effectiveDate"));
-        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("subCategory"));
         detailsColumn.setCellValueFactory(new PropertyValueFactory<>("details"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balance"));
@@ -65,6 +70,27 @@ public class HelloController {
         trackingTableView.setItems(trackingService.GetTrackingEntryList());
         trackingTableView.getSelectionModel().selectedItemProperty().addListener(
                 (observableValue, _, _) -> selectTrackingEntry(observableValue.getValue()));
+
+        var whenMakingNewEntryOnKeyPressedEventHandler = new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                switch(keyEvent.getCode()) {
+                    case ENTER -> {
+                        submitEntryDataButton.fire();
+                        amountTextField.clear();
+                        detailsTextArea.clear();
+                        budgetEntryCategoryComboBox.requestFocus();
+                    }
+                    case LEFT -> buttonDecrementDate.fire();
+                    case RIGHT -> buttonIncrementDate.fire();
+                }
+            }
+        };
+
+        budgetEntryCategoryComboBox.setOnKeyPressed(whenMakingNewEntryOnKeyPressedEventHandler);
+        budgetEntrySubCategoryComboBox.setOnKeyPressed(whenMakingNewEntryOnKeyPressedEventHandler);
+        detailsTextArea.setOnKeyPressed(whenMakingNewEntryOnKeyPressedEventHandler);
+        amountTextField.setOnKeyPressed(whenMakingNewEntryOnKeyPressedEventHandler);
 
         datePicker.setValue(LocalDate.now());
         initializeComboBoxes();
@@ -215,6 +241,10 @@ public class HelloController {
 
             }
         }
+    }
+
+    public void onKeyPressed(KeyEvent event) {
+        Developer.DebugKeyEvent(event);
     }
 
     public void clearSelection() {

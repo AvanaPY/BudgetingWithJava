@@ -1,4 +1,4 @@
-package org.sture.java.budgeting.services;
+package org.sture.java.budgeting.services.download;
 
 import org.sture.java.budgeting.utils.ProgressOperator;
 import java.util.Random;

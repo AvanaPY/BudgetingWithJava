@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
 import org.sture.java.budgeting.services.DirectoryFileProvider;
 import org.sture.java.budgeting.store.TrackingEntryStoreService;
-import org.sture.java.budgeting.services.TrackingService;
+import org.sture.java.budgeting.services.tracking.TrackingService;
 
 import java.util.Objects;
 
