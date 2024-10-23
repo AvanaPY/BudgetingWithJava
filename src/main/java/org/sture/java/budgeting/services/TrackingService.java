@@ -1,11 +1,13 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
-import org.sture.java.budgeting.models.BudgetType;
+import org.sture.java.budgeting.models.BudgetEntryCategory;
+import org.sture.java.budgeting.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.models.TrackingEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import org.sture.java.budgeting.store.TrackingEntryStoreService;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -13,18 +15,21 @@ import java.util.*;
 public class TrackingService {
     private final TrackingEntryStoreService storeService;
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
-    private final ObservableList<BudgetType> budgetTypesObservableList;
-    private final ObservableList<String> categoryObservableList;
+    private final ObservableList<BudgetEntryCategory> budgetEntryCategoryObservableList;
+    private final ObservableList<BudgetEntrySubCategory> budgetEntrySubCategoryObservableList;
+    private final BudgetTypeCategoryProvider categoryProvider;
 
-    public TrackingService(TrackingEntryStoreService storeService) {
+    public TrackingService(
+            TrackingEntryStoreService storeService,
+            BudgetTypeCategoryProvider categoryProvider) {
         this.storeService = storeService;
+        this.categoryProvider = categoryProvider;
         trackingEntryObservableList = FXCollections.observableArrayList();
-        categoryObservableList = FXCollections.observableArrayList();
-        budgetTypesObservableList = FXCollections.observableArrayList();
+        budgetEntrySubCategoryObservableList = FXCollections.observableArrayList();
+        budgetEntryCategoryObservableList = FXCollections.observableArrayList();
 
-        trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> {
-            updateStore();
-        });
+
+        trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> updateStore());
 
         var loadedData = storeService.Read();
         if(loadedData != null){
@@ -38,52 +43,55 @@ public class TrackingService {
 
     public void initialize(){
         initializeBudgetTypeList();
-        UpdateCategories(BudgetType.Income);
+        initializeCategoryTypeList();
     }
 
     public ObservableList<TrackingEntry> GetTrackingEntryList() {
         return trackingEntryObservableList;
     }
 
-    public ObservableList<BudgetType> GetBudgetTypeList(){
-        return budgetTypesObservableList;
+    public ObservableList<BudgetEntryCategory> GetBudgetCategoryList(){
+        return budgetEntryCategoryObservableList;
     }
 
-    public ObservableList<String> GetCategoryList(){
-        return categoryObservableList;
+    public ObservableList<BudgetEntrySubCategory> GetBudgetSubCategoryList(){
+        return budgetEntrySubCategoryObservableList;
     }
 
     private void initializeBudgetTypeList() {
-        budgetTypesObservableList.add(BudgetType.Income);
-        budgetTypesObservableList.add(BudgetType.Expense);
-        budgetTypesObservableList.add(BudgetType.Saving);
+        budgetEntryCategoryObservableList.addAll(categoryProvider.GenerateAllBudgetCategories());
     }
 
-    public void UpdateCategories(BudgetType type){
-        categoryObservableList.clear();
-        String[] cats = CategoryProvider.GenerateCategoriesFromBudgetType(type);
-        categoryObservableList.addAll(cats);
+    private void initializeCategoryTypeList(){
+        BudgetEntryCategory type = budgetEntryCategoryObservableList.getFirst();
+        budgetEntrySubCategoryObservableList.addAll(categoryProvider.GenerateSubCategoriesFromBudgetCategory(type));
+    }
+
+    public void UpdateCategories(BudgetEntryCategory category){
+        budgetEntrySubCategoryObservableList.clear();
+        BudgetEntrySubCategory[] subCategories = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category);
+        budgetEntrySubCategoryObservableList.addAll(subCategories);
     }
 
     public void addNewEntry(
             LocalDate date,
-            BudgetType type,
-            String category,
+            BudgetEntryCategory category,
+            BudgetEntrySubCategory subCategory,
             String details,
             Double amount) throws InvalidEntryException {
         if(date == null || amount == null)
             return;
 
-        verifyValidCategoryForBudgetType(type, category);
-        if(amount <= 0)
+        verifyValidSubCategoryForCategory(category, subCategory);
+        if(amount == 0)
             throw new InvalidEntryException("\"Amount\" cannot be less than or equal to zero. Received: " + amount);
 
         LocalDate effectiveDate = date.getDayOfMonth() < 23 ? date : LocalDate.of(date.getYear(), date.getMonthValue() + 1, 1);
         TrackingEntry entry = new TrackingEntry(
                 date,
                 effectiveDate,
-                type,
                 category,
+                subCategory,
                 details,
                 amount,
                 0d
@@ -104,12 +112,12 @@ public class TrackingService {
         recalculateBalanceForAllDateAfterAndDuring(date);
     }
 
-    private void verifyValidCategoryForBudgetType(BudgetType type, String category) {
-        String[] validCategories = CategoryProvider.GenerateCategoriesFromBudgetType(type);
-        for(String validCat : validCategories)
-            if(category.equals(validCat))
+    private void verifyValidSubCategoryForCategory(BudgetEntryCategory category, BudgetEntrySubCategory subCategory) {
+        BudgetEntrySubCategory[] validSubCategories = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category);
+        for(BudgetEntrySubCategory validCat : validSubCategories)
+            if(subCategory.equals(validCat))
                 return;
-        throw new InvalidEntryException("Category <" + category + "> is an invalid category. Expected any of " + Arrays.toString(validCategories));
+        throw new InvalidEntryException("Category <" + subCategory + "> is an invalid category. Expected any of " + Arrays.toString(validSubCategories));
     }
 
     public void DeleteTrackingEntry(TrackingEntry trackingEntry) {
@@ -140,7 +148,7 @@ public class TrackingService {
 
         double amountDifferenceOnDay = 0;
         for(TrackingEntry entry : entriesOnDay) {
-            amountDifferenceOnDay += entry.getAmount() * (entry.getType() == BudgetType.Income ? 1 : -1);
+            amountDifferenceOnDay += entry.getAmount() * (entry.getCategory().isPositive() ? 1 : -1);
         }
 
         Optional<TrackingEntry> lastEntryBeforeDay = trackingEntryObservableList.stream()
@@ -166,7 +174,7 @@ public class TrackingService {
 
     private int trackerComparer(TrackingEntry a, TrackingEntry b){
         if(a.getDate().isEqual(b.getDate())) {
-            return a.getType() .compareTo(b.getType());
+            return a.getCategory().name().compareTo(b.getCategory().name());
         }
         return a.getDate().isBefore(b.getDate()) ? -1 : 1;
     }

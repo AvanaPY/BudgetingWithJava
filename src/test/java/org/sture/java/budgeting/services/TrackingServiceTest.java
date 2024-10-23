@@ -1,28 +1,62 @@
 package org.sture.java.budgeting.services;
 
-import org.sture.java.budgeting.dto.TrackingEntryDTOConverter;
+import org.sture.java.budgeting.BaseTest;
+import org.sture.java.budgeting.models.BudgetEntryCategory;
+import org.sture.java.budgeting.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
-import org.sture.java.budgeting.models.BudgetType;
 import org.sture.java.budgeting.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sture.java.budgeting.store.TrackingEntryStoreService;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TrackingServiceTest {
+class TrackingServiceTest extends BaseTest {
     private TrackingService trackingService;
     private TrackingEntryStoreService storeService;
+
+    private final LocalDate date = LocalDate.of(2024, 10, 22);
+    private final String details  = "";
+    private final double amount = 100;
+    private BudgetEntryCategory category;
+    private BudgetEntryCategory category2;
+    private BudgetEntrySubCategory subCategory;
+    private BudgetEntrySubCategory subCategory2;
+
+    private final BudgetEntryCategory[] budgetEntryCategories = new BudgetEntryCategory[]{
+            new BudgetEntryCategory("Income", true),
+            new BudgetEntryCategory("Expense", false)
+        };
+
 
     @BeforeEach
     void setUp() {
         TrackingEntryDTOConverter dtoFactory = new TrackingEntryDTOConverter();
+        BudgetTypeCategoryProvider categoryProvider = new BudgetTypeCategoryProvider();
+
+        categoryProvider.FromTestOverrideCategories(budgetEntryCategories);
+        categoryProvider.FromTestMakeSubCategoryEntry(budgetEntryCategories[0], new BudgetEntrySubCategory[]{
+                new BudgetEntrySubCategory("Employment"),
+                new BudgetEntrySubCategory("CSN")
+        });
+        categoryProvider.FromTestMakeSubCategoryEntry(budgetEntryCategories[1], new BudgetEntrySubCategory[]{
+                new BudgetEntrySubCategory("Rent"),
+                new BudgetEntrySubCategory("Bills")
+        });
+
+        category = categoryProvider.GenerateAllBudgetCategories()[0];
+        subCategory = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category)[0];
+        category2 = categoryProvider.GenerateAllBudgetCategories()[1];
+        subCategory2 = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category2)[0];
+
         storeService = new TrackingEntryStoreService(dtoFactory);
         storeService.DeleteStoreIfExists();
-        trackingService = new TrackingService(storeService);
+        trackingService = new TrackingService(storeService, categoryProvider);
         trackingService.initialize();
     }
 
@@ -34,27 +68,14 @@ class TrackingServiceTest {
     }
 
     @Test
-    void TestAddNewValidEntry()
-    {
-        var date = LocalDate.of(2024, 10, 22);
-        var type = BudgetType.Income;
-        var category = "Employment";
-        var details  = "";
-        double amount = 100;
-
-        trackingService.addNewEntry(date, type, category, details, amount);
+    void TestAddNewValidEntry() {
+        trackingService.addNewEntry(date, category, subCategory, details, amount);
         assertEquals(1, trackingService.GetTrackingEntryList().size());
     }
 
     @Test
     void TestDeleteEntry() {
-        var date = LocalDate.of(2024, 10, 22);
-        var type = BudgetType.Income;
-        var category = "Employment";
-        var details  = "";
-        double amount = 100;
-
-        trackingService.addNewEntry(date, type, category, details, amount);
+        trackingService.addNewEntry(date, category, subCategory, details, amount);
         assertEquals(1, trackingService.GetTrackingEntryList().size());
 
         trackingService.DeleteTrackingEntry(trackingService.GetTrackingEntryList().getFirst());
@@ -63,81 +84,68 @@ class TrackingServiceTest {
 
     @Test
     void TestAddMultipleIncomeEntriesCheckIfBalanceIsCorrect() {
-        var date = LocalDate.of(2024, 10, 22);
-        var type = BudgetType.Income;
-        var category = "Employment";
-        var details  = "";
-        double amount = 100;
-
         // Expected balance is 100
-        trackingService.addNewEntry(date, type, category, details, amount);
+        trackingService.addNewEntry(date, category, subCategory, details, amount);
         assertEquals(100, trackingService.GetTrackingEntryList().getFirst().getBalance());
 
         // 200
-        trackingService.addNewEntry(date, type, category, details, amount);
+        trackingService.addNewEntry(date, category, subCategory, details, amount);
         assertEquals(200, trackingService.GetTrackingEntryList().getFirst().getBalance());
 
         // 250
-        trackingService.addNewEntry(date, type, category, details, 50d);
+        trackingService.addNewEntry(date, category, subCategory, details, 50d);
         assertEquals(250, trackingService.GetTrackingEntryList().getFirst().getBalance());
     }
 
     @Test
     void TestAddIncomeEntryThenExpenseEntryCheckIfBalanceIsCorrect(){
-        var date = LocalDate.of(2024, 10, 22);
-
-        trackingService.addNewEntry(date, BudgetType.Income, "Employment", "", 100d);
+        trackingService.addNewEntry(date, category, subCategory, "", 100d);
         assertEquals(100, trackingService.GetTrackingEntryList().getFirst().getBalance());
 
-        trackingService.addNewEntry(date, BudgetType.Expense, "Rent", "", 80d);
+        trackingService.addNewEntry(date, category2, subCategory2, "", 80d);
         assertEquals(20, trackingService.GetTrackingEntryList().getFirst().getBalance());
     }
 
     @Test
-    void TestAddNewEntryAmountCannotBeNegativeOrZero() {
-        var date = LocalDate.of(2024, 10, 22);
-
+    void TestAddNewEntryAmountCannotBeZero() {
         assertThrows(
                 InvalidEntryException.class,
-                () -> trackingService.addNewEntry(date, BudgetType.Income, "Employment", "", 0d)
+                () -> trackingService.addNewEntry(date, category, subCategory, details, 0d)
         );
 
-        assertThrows(
-                InvalidEntryException.class,
-                () -> trackingService.addNewEntry(date, BudgetType.Income, "Employment", "", -1d)
+        assertDoesNotThrow(
+                () -> trackingService.addNewEntry(date, category, subCategory, details, -1d)
         );
 
-        trackingService.addNewEntry(date, BudgetType.Income, "Employment", "", 1d);
-        assertEquals(1, trackingService.GetTrackingEntryList().size());
+        assertDoesNotThrow(
+                () -> trackingService.addNewEntry(date, category, subCategory, details, 1d)
+        );
     }
 
     @Test
     void TestToAddInvalidCategoryForBudgetTypes(){
         var date = LocalDate.of(2024, 10, 22);
 
-        var types = trackingService.GetBudgetTypeList();
-        for(BudgetType type : types)
+        var categories = trackingService.GetBudgetCategoryList();
+        for(BudgetEntryCategory category : categories)
         {
             assertThrows(
                     InvalidEntryException.class,
-                    () -> trackingService.addNewEntry(date, type, "invalidcategory", "", 0d)
+                    () -> trackingService.addNewEntry(date, category, new BudgetEntrySubCategory("Invalid"), details, amount)
             );
         }
     }
 
     @Test
     void TestCategoriesChangeWhenChangingBudgetType(){
-        BudgetType initialBudgetType = BudgetType.Income;
-        BudgetType secondBudgetType = BudgetType.Expense;
+        trackingService.UpdateCategories(category);
+        BudgetEntrySubCategory[] initialCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntrySubCategory[0]);
 
-        trackingService.UpdateCategories(initialBudgetType);
-        String[] initialCategories = trackingService.GetCategoryList().toArray(new String[0]);
+        trackingService.UpdateCategories(category2);
+        BudgetEntrySubCategory[] secondCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntrySubCategory[0]);
 
-        trackingService.UpdateCategories(secondBudgetType);
-        String[] secondCategories = trackingService.GetCategoryList().toArray(new String[0]);
-
-        trackingService.UpdateCategories(initialBudgetType);
-        String[] thirdCategories = trackingService.GetCategoryList().toArray(new String[0]);
+        trackingService.UpdateCategories(category);
+        BudgetEntrySubCategory[] thirdCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntrySubCategory[0]);
 
         assertThrows(
                 Exception.class,
@@ -155,12 +163,12 @@ class TrackingServiceTest {
         var date2 = LocalDate.of(2024, 10, 23);
         var date3 = LocalDate.of(2024, 10, 19);
 
-        trackingService.addNewEntry(date1, BudgetType.Income, "Employment", "", 1d);
-        trackingService.addNewEntry(date2, BudgetType.Income, "Employment", "", 1d);
+        trackingService.addNewEntry(date1, category, subCategory, details, amount);
+        trackingService.addNewEntry(date2, category, subCategory, details, amount);
         assertDoesNotThrow(() -> assertListIsSorted(trackingService.GetTrackingEntryList()), "List is not sorted.");
-        trackingService.addNewEntry(date3, BudgetType.Income, "Employment", "", 1d);
+        trackingService.addNewEntry(date3, category, subCategory, details, amount);
         assertDoesNotThrow(() -> assertListIsSorted(trackingService.GetTrackingEntryList()), "List is not sorted.");
-        trackingService.addNewEntry(date1, BudgetType.Income, "Employment", "", 1d);
+        trackingService.addNewEntry(date1, category, subCategory, details, amount);
         assertDoesNotThrow(() -> assertListIsSorted(trackingService.GetTrackingEntryList()), "List is not sorted.");
     }
 

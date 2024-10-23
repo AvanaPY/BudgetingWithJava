@@ -1,23 +1,25 @@
 package org.sture.java.budgeting.services;
 
-import org.sture.java.budgeting.dto.TrackingEntryDTOConverter;
-import org.sture.java.budgeting.models.BudgetType;
+import org.sture.java.budgeting.models.BudgetEntryCategory;
+import org.sture.java.budgeting.models.BudgetEntrySubCategory;
+import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sture.java.budgeting.BaseTest;
+import org.sture.java.budgeting.store.TrackingEntryStoreService;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrackingEntryStoreServiceTest extends BaseTest {
-    private TrackingEntryDTOConverter dtoFactory;
     private TrackingEntryStoreService storeService;
+
     @BeforeEach
     void setUp() {
-        dtoFactory = new TrackingEntryDTOConverter();
+        TrackingEntryDTOConverter dtoFactory = new TrackingEntryDTOConverter();
         storeService = new TrackingEntryStoreService(dtoFactory);
     }
 
@@ -31,8 +33,8 @@ class TrackingEntryStoreServiceTest extends BaseTest {
         var entry = new TrackingEntry(
                 LocalDate.of(2024, 10, 22),
                 LocalDate.of(2024, 10, 22),
-                BudgetType.Income,
-                "Employment",
+                new BudgetEntryCategory("Income", true),
+                new BudgetEntrySubCategory("Employment"),
                 "Details",
                 100.0d,
                 100.0d
@@ -90,8 +92,8 @@ class TrackingEntryStoreServiceTest extends BaseTest {
         return new TrackingEntry(
                 LocalDate.of(2024, 10, 22),
                 LocalDate.of(2024, 10, 22),
-                BudgetType.Income,
-                "Employment",
+                new BudgetEntryCategory("Income", true),
+                new BudgetEntrySubCategory("Employment"),
                 "Details",
                 42,
                 69

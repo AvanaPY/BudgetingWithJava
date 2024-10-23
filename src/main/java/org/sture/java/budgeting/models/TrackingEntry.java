@@ -10,8 +10,8 @@ import java.time.LocalDate;
 public class TrackingEntry {
     private final LocalDate date;
     private final LocalDate effectiveDate;
-    private final SimpleObjectProperty<BudgetType> type;
-    private final SimpleStringProperty category;
+    private final SimpleObjectProperty<BudgetEntryCategory> category;
+    private final SimpleObjectProperty<BudgetEntrySubCategory> subCategory;
     private final SimpleStringProperty details;
     private final SimpleDoubleProperty amount;
     private final DoubleProperty balance;
@@ -19,16 +19,16 @@ public class TrackingEntry {
     public TrackingEntry(
             LocalDate date,
             LocalDate effectiveDate,
-            BudgetType type,
-            String category,
+            BudgetEntryCategory category,
+            BudgetEntrySubCategory subCategory,
             String details,
             double amount,
             double balance)
     {
         this.date = date;
         this.effectiveDate = effectiveDate;
-        this.type = new SimpleObjectProperty<>(type);
-        this.category = new SimpleStringProperty(category);
+        this.category = new SimpleObjectProperty<>(category);
+        this.subCategory = new SimpleObjectProperty<>(subCategory);
         this.details = new SimpleStringProperty(details);
         this.amount = new SimpleDoubleProperty(amount);
         this.balance = new SimpleDoubleProperty(balance);
@@ -39,8 +39,8 @@ public class TrackingEntry {
         return "[%s %s | %s %s %s | %s %s]".formatted(
                 getDate(),
                 getEffectiveDate(),
-                getType(),
                 getCategory(),
+                getSubCategory(),
                 getDetails(),
                 getAmount(),
                 getBalance());
@@ -56,15 +56,12 @@ public class TrackingEntry {
         return effectiveDate;
     }
 
-    public BudgetType getType()
-    {
-        return type.get();
-    }
-
-    public String getCategory()
+    public BudgetEntryCategory getCategory()
     {
         return category.get();
     }
+
+    public BudgetEntrySubCategory getSubCategory() { return subCategory.get(); }
 
     public String getDetails()
     {
@@ -73,12 +70,12 @@ public class TrackingEntry {
 
     public double getAmount()
     {
-        return (double)amount.get();
+        return amount.get();
     }
 
     public double getBalance()
     {
-        return ((double) balance.get());
+        return balance.get();
     }
 
     public void setBalance(double value)
@@ -93,8 +90,8 @@ public class TrackingEntry {
         {
             result = to.getDate().equals(getDate())
                     && to.getEffectiveDate().equals(getEffectiveDate())
-                    && to.getType() == getType()
                     && to.getCategory().equals(getCategory())
+                    && to.getSubCategory().equals(getSubCategory())
                     && to.getDetails().equals(getDetails())
                     && to.getAmount() == getAmount()
                     && to.getBalance() == getBalance();

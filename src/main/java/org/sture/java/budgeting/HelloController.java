@@ -1,6 +1,7 @@
 package org.sture.java.budgeting;
 
-import org.sture.java.budgeting.models.BudgetType;
+import org.sture.java.budgeting.models.BudgetEntryCategory;
+import org.sture.java.budgeting.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.DownloadService;
 import org.sture.java.budgeting.services.TrackingService;
 import org.sture.java.budgeting.utils.ProgressOperator;
@@ -37,8 +38,8 @@ public class HelloController {
     @FXML TableColumn<TrackingEntry, Double> balanceColumn;
 
     // Widgets for adding new data
-    @FXML ComboBox<BudgetType> budgetTypeComboBox;
-    @FXML ComboBox<String> categoryComboBox;
+    @FXML ComboBox<BudgetEntryCategory> budgetEntryCategoryComboBox;
+    @FXML ComboBox<BudgetEntrySubCategory> budgetEntrySubCategoryComboBox;
     @FXML DatePicker datePicker;
     @FXML TextField amountTextField;
     @FXML TextArea detailsTextArea;
@@ -71,18 +72,18 @@ public class HelloController {
     }
 
     private void initializeComboBoxes() {
-        budgetTypeComboBox.setItems(trackingService.GetBudgetTypeList());
-        budgetTypeComboBox.setValue(BudgetType.Income);
+        budgetEntryCategoryComboBox.setItems(trackingService.GetBudgetCategoryList());
+        budgetEntryCategoryComboBox.setValue(trackingService.GetBudgetCategoryList().getFirst());
 
-        categoryComboBox.setItems(trackingService.GetCategoryList());
-        categoryComboBox.setValue(trackingService.GetCategoryList().getFirst());
+        budgetEntrySubCategoryComboBox.setItems(trackingService.GetBudgetSubCategoryList());
+        budgetEntrySubCategoryComboBox.setValue(trackingService.GetBudgetSubCategoryList().getFirst());
     }
 
     private void updateCategoryComboBoxFromTypeComboBoxActiveType() {
-        BudgetType budgetType = budgetTypeComboBox.getValue();
-        trackingService.UpdateCategories(budgetType);
+        BudgetEntryCategory activeCategory = budgetEntryCategoryComboBox.getValue();
+        trackingService.UpdateCategories(activeCategory);
 
-        categoryComboBox.setValue(trackingService.GetCategoryList().getFirst());
+        budgetEntrySubCategoryComboBox.setValue(trackingService.GetBudgetSubCategoryList().getFirst());
     }
 
     public void startDownload() {
@@ -140,13 +141,13 @@ public class HelloController {
     }
 
     public void buttonAddNewEntry() {
-        LocalDate date          = datePicker.getValue();
-        BudgetType budgetType   = budgetTypeComboBox.getValue();
-        String category         = categoryComboBox.getValue();
-        String details          = detailsTextArea.getText();
-        Double amount           = Utils.parseTextAsDoubleOrNull(amountTextField.getText());
+        LocalDate date                      = datePicker.getValue();
+        BudgetEntryCategory budgetCategory  = budgetEntryCategoryComboBox.getValue();
+        BudgetEntrySubCategory subCategory  = budgetEntrySubCategoryComboBox.getValue();
+        String details                      = detailsTextArea.getText();
+        Double amount                       = Utils.parseTextAsDoubleOrNull(amountTextField.getText());
 
-        trackingService.addNewEntry(date, budgetType, category, details, amount);
+        trackingService.addNewEntry(date, budgetCategory, subCategory, details, amount);
         forceRefresh();
     }
 
@@ -189,8 +190,8 @@ public class HelloController {
         submitEntryDataButton.setText("Update selected");
 
         datePicker.setValue(selectedTrackingEntry.getDate());
-        budgetTypeComboBox.setValue(selectedTrackingEntry.getType());
-        categoryComboBox.setValue(selectedTrackingEntry.getCategory());
+        budgetEntryCategoryComboBox.setValue(selectedTrackingEntry.getCategory());
+        budgetEntrySubCategoryComboBox.setValue(selectedTrackingEntry.getSubCategory());
         amountTextField.setText(String.valueOf(selectedTrackingEntry.getAmount()));
         detailsTextArea.setText(selectedTrackingEntry.getDetails());
     }
@@ -224,8 +225,8 @@ public class HelloController {
             trackingTableView.getSelectionModel().clearSelection();
 
             datePicker.setValue(LocalDate.now());
-            budgetTypeComboBox.setValue(trackingService.GetBudgetTypeList().getFirst());
-            categoryComboBox.setValue(trackingService.GetCategoryList().getFirst());
+            budgetEntryCategoryComboBox.setValue(trackingService.GetBudgetCategoryList().getFirst());
+            budgetEntrySubCategoryComboBox.setValue(trackingService.GetBudgetSubCategoryList().getFirst());
             amountTextField.setText("");
             detailsTextArea.setText("");
         });

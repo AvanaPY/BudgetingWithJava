@@ -2,7 +2,7 @@ package org.sture.java.budgeting;
 
 import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.di.RegisterType;
-import org.sture.java.budgeting.dto.TrackingEntryDTOConverter;
+import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -10,9 +10,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.sture.java.budgeting.services.CategoryProvider;
+import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
 import org.sture.java.budgeting.services.DirectoryFileProvider;
-import org.sture.java.budgeting.services.TrackingEntryStoreService;
+import org.sture.java.budgeting.store.TrackingEntryStoreService;
 import org.sture.java.budgeting.services.TrackingService;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ public class HelloApplication extends Application {
     public static void main(String[] args) {
         container = new DiContainer();
         container.Register(DirectoryFileProvider.class, RegisterType.Singleton);
-        container.Register(CategoryProvider.class, RegisterType.Singleton);
+        container.Register(BudgetTypeCategoryProvider.class, RegisterType.Singleton);
         container.Register(TrackingEntryDTOConverter.class, RegisterType.Singleton);
         container.Register(TrackingEntryStoreService.class, RegisterType.Singleton);
         container.Register(TrackingService.class, RegisterType.Singleton);

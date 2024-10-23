@@ -89,7 +89,7 @@
                               <Insets />
                            </opaqueInsets>
                         </Label>
-                        <ComboBox fx:id="budgetTypeComboBox" layoutX="125.0" layoutY="5.0" onAction="#budgetTypeComboBoxOnAction" prefHeight="25.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" />
+                        <ComboBox fx:id="budgetEntryCategoryComboBox" layoutX="125.0" layoutY="5.0" onAction="#budgetTypeComboBoxOnAction" prefHeight="25.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" />
                      </children>
                   </AnchorPane>
                   <AnchorPane>
@@ -102,7 +102,7 @@
                               <Insets />
                            </opaqueInsets>
                         </Label>
-                        <ComboBox fx:id="categoryComboBox" layoutX="125.0" layoutY="5.0" prefHeight="25.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" />
+                        <ComboBox fx:id="budgetEntrySubCategoryComboBox" layoutX="125.0" layoutY="5.0" prefHeight="25.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" />
                      </children>
                   </AnchorPane>
                   <AnchorPane>

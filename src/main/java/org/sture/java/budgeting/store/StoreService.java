@@ -1,6 +1,7 @@
-package org.sture.java.budgeting.services;
+package org.sture.java.budgeting.store;
 
-import org.sture.java.budgeting.dto.DTOConverter;
+import org.sture.java.budgeting.store.dto.DTOConverter;
+import org.sture.java.budgeting.services.DirectoryFileProvider;
 import org.sture.java.budgeting.utils.DTO;
 
 import java.io.*;
