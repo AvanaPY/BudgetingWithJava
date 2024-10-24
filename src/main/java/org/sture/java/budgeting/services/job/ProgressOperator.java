@@ -1,4 +1,4 @@
-package org.sture.java.budgeting.utils;
+package org.sture.java.budgeting.services.job;
 
 public interface ProgressOperator {
     void OnStartProgress();

@@ -2,33 +2,27 @@ package org.sture.java.budgeting;
 
 import javafx.event.EventHandler;
 import org.sture.java.budgeting.developer.Developer;
+import org.sture.java.budgeting.services.job.Job;
+import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
-import org.sture.java.budgeting.services.download.DownloadService;
 import org.sture.java.budgeting.services.tracking.TrackingService;
-import org.sture.java.budgeting.utils.ProgressOperator;
 import org.sture.java.budgeting.utils.Utils;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Cursor;
 import javafx.scene.control.*;
 
 import java.time.LocalDate;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.Random;
+import java.util.UUID;
 
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 
 @SuppressWarnings({"ClassEscapesDefinedScope", "SameParameterValue"})
-public class HelloController {
-
-    // Progression bar in status bar
-    @FXML Label progressionLabel;
-    @FXML ProgressBar progressBar;
-
+public class HomeController {
     // Widgets for displaying data in our table view
     @FXML TableView<TrackingEntry> trackingTableView;
     @FXML TableColumn<TrackingEntry, LocalDate> dateColumn;
@@ -97,6 +91,11 @@ public class HelloController {
         updateCategoryComboBoxFromTypeComboBoxActiveType();
     }
 
+    public void buttonDownloadTestStatusBar(){
+        HelloApplication.getContainer().ResolveInstance(
+                BackgroundJobExecutionService.class).LaunchBackroundJob(new DummyJob(UUID.randomUUID()));
+    }
+
     private void initializeComboBoxes() {
         budgetEntryCategoryComboBox.setItems(trackingService.GetBudgetCategoryList());
         budgetEntryCategoryComboBox.setValue(trackingService.GetBudgetCategoryList().getFirst());
@@ -110,60 +109,6 @@ public class HelloController {
         trackingService.UpdateCategories(activeCategory);
 
         budgetEntrySubCategoryComboBox.setValue(trackingService.GetBudgetSubCategoryList().getFirst());
-    }
-
-    public void startDownload() {
-        onStartDownload();
-    }
-
-    public void onDownloadComplete() {
-        progressBar.setCursor(Cursor.DEFAULT);
-        updateProgressStatus("Complete", 1d);
-        lastProgressText = "";
-        System.out.println("Finished");
-    }
-
-    private void onStartDownload() {
-        try {
-            progressBar.setCursor(Cursor.WAIT);
-            DownloadService.InitializeDownload(new ProgressOperator() {
-                @Override
-                public void OnStartProgress(){
-                    setProgressionVisible(true);
-                    lastProgressText = "";
-                    updateProgressStatus("Starting...", 0);
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(400);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                @Override
-                public void OnProgressUpdate(String status, double progress) {
-                    updateProgressStatus(status, progress);
-                }
-
-                @Override
-                public void OnProgressComplete() {
-                    onDownloadComplete();
-                }
-            });
-        } catch (Exception _) {}
-    }
-
-    private void updateProgressStatus(String progressText, double progression){
-        if(!Objects.equals(progressText, lastProgressText))
-        {
-            lastProgressText = progressText;
-            Platform.runLater(() -> progressionLabel.setText(progressText));
-        }
-        progressBar.setProgress(progression);
-    }
-
-    private void setProgressionVisible(boolean visible) {
-        progressBar.setVisible(visible);
-        progressionLabel.setVisible(visible);
     }
 
     public void buttonAddNewEntry() {
@@ -265,5 +210,43 @@ public class HelloController {
     @FXML
     public void exitApplication(ActionEvent event){
         System.out.println("owo");
+    }
+
+    private static class DummyJob extends Job {
+        public DummyJob(UUID uuid) {
+            super(uuid);
+        }
+
+        @Override
+        public void Execute() {
+            Random random = new Random();
+            try {
+                UpdateMessage("Opening file stream...");
+                Thread.sleep(1000);
+                UpdateMessage("Parsing data...");
+                UpdateProgression(0);
+                double prog = 0;
+                while(prog < 0.95){
+                    double randomProg = random.nextDouble(0.05);
+                    prog += randomProg;
+
+                    UpdateProgression(prog);
+                    if(prog < 0.2)
+                        UpdateMessage("Parsing data...");
+                    else if(prog < 0.3)
+                        UpdateMessage("Writing data...");
+                    else if(prog < 0.8)
+                        UpdateMessage("Verifying data...");
+                    long delay = random.nextLong(
+                            (long)(randomProg * 4000),
+                            (long)(randomProg * 10000));
+                    Thread.sleep(delay);
+                }
+                UpdateMessage("Closing stream");
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

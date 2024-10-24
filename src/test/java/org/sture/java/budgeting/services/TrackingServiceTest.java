@@ -1,6 +1,8 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.BaseTest;
+import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
+import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.tracking.TrackingService;
@@ -55,9 +57,14 @@ class TrackingServiceTest extends BaseTest {
         category2 = categoryProvider.GenerateAllBudgetCategories()[1];
         subCategory2 = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category2)[0];
 
-        storeService = new TrackingEntryStoreService(dtoFactory);
+        storeService = new TrackingEntryStoreService(
+                dtoFactory,
+                new BackgroundJobExecutionService(new StatusBarControllerMock()));
         storeService.DeleteStoreIfExists();
-        trackingService = new TrackingService(storeService, categoryProvider);
+
+        trackingService = new TrackingService(
+                storeService,
+                categoryProvider);
         trackingService.initialize();
     }
 

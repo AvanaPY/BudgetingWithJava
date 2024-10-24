@@ -42,6 +42,16 @@ public class DiContainer {
         this.Register(clazz, clazz, registerType);
     }
 
+    /** Registers a direct instance of an object for its class
+     * @param clazz The interface to register for
+     * @param instance The instance which to resolve
+     */
+    public <T> void Register(Class<T> clazz, T instance) {
+        if(instance.getClass() != clazz)
+            throw new FailedToRegisterClassException("Cannot register " + instance + " as instance of class " + clazz);
+        storeInstanceOfSingleton(clazz, instance);
+    }
+
     /**
      * Registers a class which can later be resolved into an instance of said class through {@code ResolveInstance}
      * @param iclazz An interface to register
@@ -95,12 +105,19 @@ public class DiContainer {
         }
 
         if(registerTypeMap.get(clazz) == RegisterType.Singleton) {
-            singletonRegisteredCache.put(clazz, instance);
+            storeInstanceOfSingleton(clazz, instance);
         }
 
         Developer.DebugMessage(this + " resolved " + clazz);
 
         return instance;
+    }
+
+    private <T> void storeInstanceOfSingleton(Class<?> clazz, T instance){
+        if(singletonRegisteredCache.containsKey(clazz)){
+            throw new RuntimeException("Failed to store instance: Class " + clazz + " has already been stored once before");
+        }
+        singletonRegisteredCache.put(clazz, instance);
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.sture.java.budgeting.store;
 
+import org.sture.java.budgeting.services.job.Job;
+import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.store.dto.DTOConverter;
 import org.sture.java.budgeting.services.DirectoryFileProvider;
 import org.sture.java.budgeting.utils.DTO;
@@ -11,18 +13,23 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class StoreService<T, TDto extends DTO<T>> {
     protected final Path dataDirectory = DirectoryFileProvider.GetDataDirectory();
     protected final Path storeFilePath;
 
     private final DTOConverter<T, TDto> dtoFactory;
+    private final BackgroundJobExecutionService jobExecutionerService;
+    private UUID backgroundJobId;
 
     public StoreService(
             String storeFileName,
-            DTOConverter<T, TDto> dtoFactory) {
+            DTOConverter<T, TDto> dtoFactory,
+            BackgroundJobExecutionService jobExecutionerService) {
         storeFilePath = Paths.get(dataDirectory.toString(), storeFileName);
         this.dtoFactory = dtoFactory;
+        this.jobExecutionerService = jobExecutionerService;
 
         try {
             Files.createDirectories(dataDirectory);
@@ -72,18 +79,50 @@ public abstract class StoreService<T, TDto extends DTO<T>> {
     }
 
     protected void Store(TDto[] dtoObjects) {
-        try {
-            var fileStream = new DTOFileStream<TDto>(storeFilePath);
-            fileStream.writeEntries(dtoObjects);
-            fileStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Stream error: " + e.getMessage());
-        }
+        UUID uuid = UUID.randomUUID();
+        Job job = new StoreJob<>(
+                uuid,
+                new DTOFileStream<>(storeFilePath),
+                dtoObjects
+        );
+        job.setupOnDoneCallback(p -> backgroundJobId = null);
+        backgroundJobId = jobExecutionerService.LaunchBackroundJob(job);
     }
 
     public final boolean DeleteStoreIfExists(){
         File f = new File(storeFilePath.toUri());
         return f.delete();
+    }
+
+    public void WaitForBackgroundJobToComplete() {
+        if(backgroundJobId != null)
+            jobExecutionerService.WaitForJobToFinish(backgroundJobId);
+    }
+
+    private static class StoreJob<T> extends Job {
+        private final DTOFileStream<T> fileStream;
+        private final T[] objects;
+        public StoreJob(UUID uuid, DTOFileStream<T> filestream, T[] objects) {
+            super(uuid);
+            this.fileStream = filestream;
+            this.objects = objects;
+        }
+
+        @Override
+        public void Execute() {
+            try {
+                UpdateProgression(0);
+                UpdateMessage("Writing data...");
+                fileStream.writeEntries(objects);
+                UpdateProgression(0.5);
+
+                UpdateMessage("Closing stream");
+                fileStream.close();
+
+            } catch (IOException e) {
+                throw new RuntimeException("Stream error: " + e.getMessage());
+            }
+        }
     }
 
     private static class DTOFileStream<T> {

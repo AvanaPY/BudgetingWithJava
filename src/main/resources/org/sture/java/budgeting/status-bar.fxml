@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane maxHeight="-Infinity" minHeight="20.0" minWidth="200.0" prefHeight="30.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sture.java.budgeting.StatusBarController">
+   <children>
+      <SplitPane dividerPositions="0.5" layoutY="-1.0" prefHeight="30.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <HBox fx:id="statusBarProgressHbox" prefHeight="100.0" prefWidth="200.0" />
+            <HBox prefHeight="100.0" prefWidth="200.0" />
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

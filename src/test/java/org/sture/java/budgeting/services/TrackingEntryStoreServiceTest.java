@@ -1,5 +1,7 @@
 package org.sture.java.budgeting.services;
 
+import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
+import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
@@ -19,8 +21,10 @@ class TrackingEntryStoreServiceTest extends BaseTest {
 
     @BeforeEach
     void setUp() {
-        TrackingEntryDTOConverter dtoFactory = new TrackingEntryDTOConverter();
-        storeService = new TrackingEntryStoreService(dtoFactory);
+        storeService = new TrackingEntryStoreService(
+                new TrackingEntryDTOConverter(),
+                new BackgroundJobExecutionService(new StatusBarControllerMock())
+        );
     }
 
     @AfterEach
@@ -42,6 +46,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
 
         // Write
         storeService.Store(entry);
+        storeService.WaitForBackgroundJobToComplete();
 
         // Read
         var deserialized = storeService.Read();
@@ -62,6 +67,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
 
         // Write
         storeService.Store(entries);
+        storeService.WaitForBackgroundJobToComplete();
 
         // Read
         var objects = storeService.Read();
@@ -80,6 +86,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
 
         // Write
         storeService.Store(entries);
+        storeService.WaitForBackgroundJobToComplete();
 
         // Remove once
         assertTrue(storeService.DeleteStoreIfExists());

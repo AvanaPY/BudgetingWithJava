@@ -1,6 +1,8 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.BaseTest;
+import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
+import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.store.dto.DTOConverter;
 import org.sture.java.budgeting.store.StoreService;
 import org.sture.java.budgeting.utils.DTO;
@@ -21,7 +23,8 @@ class StoreServiceTest extends BaseTest {
     void setUp() {
         storeService = new StoreService<>(
                 "testObject.store",
-                new TestObjectDTOConverter()) {
+                new TestObjectDTOConverter(),
+                new BackgroundJobExecutionService(new StatusBarControllerMock())) {
             @Override
             protected void Store(TestObjectDTO[] dtoObjects) {
                 super.Store(dtoObjects);
@@ -38,8 +41,9 @@ class StoreServiceTest extends BaseTest {
 
     @Test
     void TestStoringOneObject(){
-        var object = new TestObject("somevar");
+        var object = new TestObject("someValue");
         storeService.Store(object);
+        storeService.WaitForBackgroundJobToComplete();
 
         var readBack = storeService.Read();
         assertNotNull(readBack);
@@ -60,6 +64,8 @@ class StoreServiceTest extends BaseTest {
         };
 
         storeService.Store(dataArray);
+        storeService.WaitForBackgroundJobToComplete();
+
         var readBack = storeService.Read();
         assertArrayEquals(dataArray, readBack);
     }
@@ -73,6 +79,8 @@ class StoreServiceTest extends BaseTest {
         dataList.add(new TestObject("d"));
 
         storeService.Store(dataList);
+        storeService.WaitForBackgroundJobToComplete();
+
         var readBack = storeService.Read();
         assertNotNull(readBack);
         assertEquals(dataList.size(), readBack.length);
@@ -80,33 +88,24 @@ class StoreServiceTest extends BaseTest {
             assertEquals(dataList.get(i), readBack[i]);
     }
 
-    public static class TestObject {
-
-        public String var;
-        public TestObject(String var){
-            this.var = var;
-        }
+    public record TestObject(String var) {
 
         @Override
-        public boolean equals(Object o){
-            if(o instanceof TestObject t){
-                return var.equals(t.var);
+            public boolean equals(Object o) {
+                if (o instanceof TestObject t) {
+                    return var.equals(t.var);
+                }
+                return false;
             }
-            return false;
         }
-    }
 
-    public static class TestObjectDTO implements DTO<TestObject>, Serializable {
-        public String var;
-        public TestObjectDTO(String var){
-            this.var = var;
-        }
+    public record TestObjectDTO(String var) implements DTO<TestObject>, Serializable {
 
         @Override
-        public TestObject Convert() {
-            return new TestObject(var);
+            public TestObject Convert() {
+                return new TestObject(var);
+            }
         }
-    }
 
     public static class TestObjectDTOConverter implements DTOConverter<TestObject, TestObjectDTO> {
 

@@ -4,7 +4,7 @@ import javafx.scene.input.KeyEvent;
 
 public class Developer {
     private static int debugMessageIndent = 0;
-    public static boolean DEBUG = false;
+    public final static boolean DEBUG = false;
     /**
      * Prints a debug message to the console.
      * @param message The message to print

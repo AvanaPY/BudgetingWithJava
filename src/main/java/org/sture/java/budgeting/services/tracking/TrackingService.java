@@ -29,12 +29,12 @@ public class TrackingService {
         budgetEntrySubCategoryObservableList = FXCollections.observableArrayList();
         budgetEntryCategoryObservableList = FXCollections.observableArrayList();
 
-        trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> updateStore());
-
         var loadedData = storeService.Read();
         if(loadedData != null){
             trackingEntryObservableList.addAll(loadedData);
         }
+
+        trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> updateStore());
     }
 
     private void updateStore() {
