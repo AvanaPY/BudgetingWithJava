@@ -93,7 +93,7 @@ public class HomeController {
 
     public void buttonDownloadTestStatusBar(){
         HelloApplication.getContainer().ResolveInstance(
-                BackgroundJobExecutionService.class).LaunchBackroundJob(new DummyJob(UUID.randomUUID()));
+                BackgroundJobExecutionService.class).LaunchBackgroundJob(new DummyJob(UUID.randomUUID()));
     }
 
     private void initializeComboBoxes() {

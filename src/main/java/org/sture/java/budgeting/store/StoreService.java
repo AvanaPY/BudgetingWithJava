@@ -86,7 +86,7 @@ public abstract class StoreService<T, TDto extends DTO<T>> {
                 dtoObjects
         );
         job.setupOnDoneCallback(p -> backgroundJobId = null);
-        backgroundJobId = jobExecutionerService.LaunchBackroundJob(job);
+        backgroundJobId = jobExecutionerService.LaunchBackgroundJob(job);
     }
 
     public final boolean DeleteStoreIfExists(){

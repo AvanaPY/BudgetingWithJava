@@ -17,7 +17,7 @@ public class BackgroundJobExecutionService {
         jobToThreadMap = new HashMap<>();
     }
 
-    public UUID LaunchBackroundJob(Job job) {
+    public UUID LaunchBackgroundJob(Job job) {
         UUID controllerProgressId = statusBarController.CreateNewProgression();
 
         job.setupMessageCallback((String msg)       -> statusBarController.SetProgressMessageTo(controllerProgressId, msg));
@@ -25,6 +25,7 @@ public class BackgroundJobExecutionService {
         job.setupOnDoneCallback((String msg)        -> {
             statusBarController.SetProgressCompleted(controllerProgressId, "Completed");
             statusBarController.DeleteProgressionAfterDelay(controllerProgressId, 1d);
+            jobToThreadMap.remove(job.Id);
         });
 
         JobThread thread = new JobThread(job, this);
@@ -33,6 +34,10 @@ public class BackgroundJobExecutionService {
         jobToThreadMap.put(job.Id, thread);
 
         return job.Id;
+    }
+
+    public boolean BackgroundJobIsActive(UUID jobID){
+        return jobToThreadMap.containsKey(jobID);
     }
 
     public void WaitForJobToFinish(UUID jobId) {
