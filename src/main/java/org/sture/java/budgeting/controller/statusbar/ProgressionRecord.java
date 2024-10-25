@@ -1,4 +1,4 @@
-package org.sture.java.budgeting;
+package org.sture.java.budgeting.controller.statusbar;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;

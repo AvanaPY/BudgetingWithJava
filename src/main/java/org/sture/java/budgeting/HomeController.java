@@ -1,7 +1,10 @@
 package org.sture.java.budgeting;
 
 import javafx.event.EventHandler;
+import javafx.stage.Stage;
+import org.sture.java.budgeting.controller.settings.SettingsSceneFactory;
 import org.sture.java.budgeting.developer.Developer;
+import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.services.job.Job;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
@@ -45,13 +48,17 @@ public class HomeController {
     @FXML Button buttonDecrementDate;
 
     // Private
+    private DiContainer container;
     private TrackingService trackingService;
     private String lastProgressText;
     private TrackingEntry selectedTrackingEntry;
 
     public void initialize() {
-        trackingService = HelloApplication.getContainer().ResolveInstance(TrackingService.class);
+        container = BudgetApplication.getContainer();
+        trackingService = container.ResolveInstance(TrackingService.class);
         trackingService.initialize();
+        trackingService.loadStoreIfExists();
+        trackingService.setOnEntryListChangedThenWritestore(true);
 
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         effectiveDateColumn.setCellValueFactory(new PropertyValueFactory<>("effectiveDate"));
@@ -92,8 +99,13 @@ public class HomeController {
     }
 
     public void buttonDownloadTestStatusBar(){
-        HelloApplication.getContainer().ResolveInstance(
+        BudgetApplication.getContainer().ResolveInstance(
                 BackgroundJobExecutionService.class).LaunchBackgroundJob(new DummyJob(UUID.randomUUID()));
+    }
+
+    public void buttonOpenSettingsWindow() {
+        Stage stage = SettingsSceneFactory.Build(getClass(), container).stage;
+        Platform.runLater(stage::showAndWait);
     }
 
     private void initializeComboBoxes() {
@@ -154,8 +166,6 @@ public class HomeController {
     public void selectTrackingEntry(TrackingEntry entry) {
         if(entry == null)
             return;
-
-        System.out.println("Selected " + entry);
 
         selectedTrackingEntry = entry;
         submitEntryDataButton.setText("Update selected");

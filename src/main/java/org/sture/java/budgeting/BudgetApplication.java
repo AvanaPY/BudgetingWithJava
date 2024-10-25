@@ -1,6 +1,7 @@
 package org.sture.java.budgeting;
 
 import javafx.scene.layout.BorderPane;
+import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.di.RegisterType;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
@@ -20,7 +21,7 @@ import org.sture.java.budgeting.services.tracking.TrackingService;
 import java.io.IOException;
 import java.util.Objects;
 
-public class HelloApplication extends Application {
+public class BudgetApplication extends Application {
     private static DiContainer container;
     public static void main(String[] args) {
         container = new DiContainer();
@@ -39,9 +40,6 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        System.out.println(System.getProperty("javafx.version"));
-        System.out.println(System.getProperty("java.version"));
-
         Scene scene = MainSceneFactory(container);
         stage.setScene(scene);
 

@@ -9,6 +9,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
+import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
+import org.sture.java.budgeting.controller.statusbar.ProgressionRecord;
 
 import java.util.HashMap;
 import java.util.UUID;

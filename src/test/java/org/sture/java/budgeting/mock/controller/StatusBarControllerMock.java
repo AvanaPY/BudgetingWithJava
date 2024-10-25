@@ -1,10 +1,11 @@
 package org.sture.java.budgeting.mock.controller;
 
-import org.sture.java.budgeting.IStatusBarController;
+import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 
 import java.util.HashMap;
 import java.util.UUID;
 
+@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class StatusBarControllerMock implements IStatusBarController {
     private final HashMap<UUID, Boolean> started;
     private final HashMap<UUID, Boolean> completed;

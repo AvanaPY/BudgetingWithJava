@@ -1,6 +1,6 @@
 package org.sture.java.budgeting.services.job;
 
-import org.sture.java.budgeting.IStatusBarController;
+import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 
 import java.util.HashMap;
 import java.util.UUID;

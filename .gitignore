@@ -39,3 +39,6 @@ build/
 
 ### Store ###
 *.store
+
+### jar ###
+*.jar

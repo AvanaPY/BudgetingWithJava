@@ -1,4 +1,4 @@
-package org.sture.java.budgeting;
+package org.sture.java.budgeting.controller.statusbar;
 
 import java.util.UUID;
 

@@ -36,7 +36,6 @@ class TrackingServiceTest extends BaseTest {
             new BudgetEntryCategory("Expense", false)
         };
 
-
     @BeforeEach
     void setUp() {
         TrackingEntryDTOConverter dtoFactory = new TrackingEntryDTOConverter();

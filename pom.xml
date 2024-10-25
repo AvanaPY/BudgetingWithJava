@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.sture.worlddomination</groupId>
-    <artifactId>BudgettingIGuess</artifactId>
+    <groupId>org.sture</groupId>
+    <artifactId>Budget</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>BudgettingIGuess</name>
+    <name>Budget</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -78,7 +78,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                org.sture.worlddomination.budgettingiguess/org.sture.java.budgeting.HelloApplication
+                                org.sture.budgeting/org.sture.java.budgeting.BudgetApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

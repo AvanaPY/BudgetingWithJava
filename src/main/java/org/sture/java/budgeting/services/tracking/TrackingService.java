@@ -19,6 +19,7 @@ public class TrackingService {
     private final ObservableList<BudgetEntryCategory> budgetEntryCategoryObservableList;
     private final ObservableList<BudgetEntrySubCategory> budgetEntrySubCategoryObservableList;
     private final BudgetTypeCategoryProvider categoryProvider;
+    private boolean writeStoreOnEntriesChanged;
 
     public TrackingService(
             TrackingEntryStoreService storeService,
@@ -29,21 +30,33 @@ public class TrackingService {
         budgetEntrySubCategoryObservableList = FXCollections.observableArrayList();
         budgetEntryCategoryObservableList = FXCollections.observableArrayList();
 
-        var loadedData = storeService.Read();
-        if(loadedData != null){
-            trackingEntryObservableList.addAll(loadedData);
-        }
-
-        trackingEntryObservableList.addListener((ListChangeListener<TrackingEntry>) change -> updateStore());
-    }
-
-    private void updateStore() {
-        storeService.Store(trackingEntryObservableList);
+        setOnEntryListChangedThenWritestore(false);
+        trackingEntryObservableList.addListener(this::trackingEntryAddedListener);
     }
 
     public void initialize(){
         initializeBudgetTypeList();
         initializeCategoryTypeList();
+    }
+
+    public void setOnEntryListChangedThenWritestore(boolean value){
+        writeStoreOnEntriesChanged = value;
+    }
+
+    private void trackingEntryAddedListener(ListChangeListener.Change<?> change) {
+        if(writeStoreOnEntriesChanged)
+            writeStore();
+    }
+
+    public void loadStoreIfExists(){
+        var loadedData = storeService.Read();
+        if(loadedData != null){
+            trackingEntryObservableList.addAll(loadedData);
+        }
+    }
+
+    private void writeStore() {
+        storeService.Store(trackingEntryObservableList);
     }
 
     public ObservableList<TrackingEntry> GetTrackingEntryList() {
@@ -110,6 +123,8 @@ public class TrackingService {
             trackingEntryObservableList.add(entry);
 
         recalculateBalanceForAllDateAfterAndDuring(date);
+        if(writeStoreOnEntriesChanged)
+            writeStore();
     }
 
     private void verifyValidSubCategoryForCategory(BudgetEntryCategory category, BudgetEntrySubCategory subCategory) {
@@ -125,6 +140,9 @@ public class TrackingService {
             return;
         trackingEntryObservableList.remove(trackingEntry);
         recalculateBalanceForAllDateAfterAndDuring(trackingEntry.getDate());
+
+        if(writeStoreOnEntriesChanged)
+            writeStore();
     }
 
     private void recalculateBalanceForAllDateAfterAndDuring(LocalDate date){

@@ -47,7 +47,7 @@ public class DiContainer {
      * @param instance The instance which to resolve
      */
     public <T> void Register(Class<T> clazz, T instance) {
-        if(instance.getClass() != clazz)
+        if(instance.getClass().isInstance(clazz))
             throw new FailedToRegisterClassException("Cannot register " + instance + " as instance of class " + clazz);
         storeInstanceOfSingleton(clazz, instance);
     }
