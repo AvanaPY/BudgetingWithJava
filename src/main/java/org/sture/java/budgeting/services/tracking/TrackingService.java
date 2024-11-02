@@ -6,7 +6,7 @@ import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
+import org.sture.java.budgeting.services.category.BudgetCategoryProvider;
 import org.sture.java.budgeting.store.tracking.service.TrackingEntryStoreService;
 
 import java.time.LocalDate;
@@ -17,12 +17,12 @@ public class TrackingService {
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
     private final ObservableList<BudgetEntryCategory> budgetEntryCategoryObservableList;
     private final ObservableList<BudgetEntryCategory> budgetEntrySubCategoryObservableList;
-    private final BudgetTypeCategoryProvider categoryProvider;
+    private final BudgetCategoryProvider categoryProvider;
     private boolean writeStoreOnEntriesChanged;
 
     public TrackingService(
             TrackingEntryStoreService storeService,
-            BudgetTypeCategoryProvider categoryProvider) {
+            BudgetCategoryProvider categoryProvider) {
         this.storeService = storeService;
         this.categoryProvider = categoryProvider;
         trackingEntryObservableList = FXCollections.observableArrayList();

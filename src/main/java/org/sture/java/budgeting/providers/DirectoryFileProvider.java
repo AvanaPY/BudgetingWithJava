@@ -1,4 +1,4 @@
-package org.sture.java.budgeting.services;
+package org.sture.java.budgeting.providers;
 
 import org.sture.java.budgeting.utils.TestHarness;
 

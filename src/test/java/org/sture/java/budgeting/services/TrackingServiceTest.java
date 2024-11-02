@@ -3,6 +3,7 @@ package org.sture.java.budgeting.services;
 import org.sture.java.budgeting.BaseTest;
 import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
+import org.sture.java.budgeting.services.category.BudgetCategoryProvider;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.services.tracking.TrackingService;
@@ -27,7 +28,7 @@ class TrackingServiceTest extends BaseTest {
     private TrackingEntryStoreService storeService;
 
     private BudgetCategoryStoreService budgetCategoryStoreService;
-    private BudgetTypeCategoryProvider budgetTypeCategoryProvider;
+    private BudgetCategoryProvider budgetCategoryProvider;
 
     private final LocalDate date = LocalDate.of(2024, 10, 22);
     private final String details  = "";
@@ -65,19 +66,19 @@ class TrackingServiceTest extends BaseTest {
 
         BudgetEntryCategoryDTOConverter categoryDtoFactory = new BudgetEntryCategoryDTOConverter();
         budgetCategoryStoreService = new BudgetCategoryStoreService(categoryDtoFactory, jes);
-        budgetTypeCategoryProvider  = new BudgetTypeCategoryProvider(budgetCategoryStoreService);
-        budgetTypeCategoryProvider.FromTestOverrideCategories(budgetEntryCategories);
+        budgetCategoryProvider = new BudgetCategoryProvider(budgetCategoryStoreService);
+        budgetCategoryProvider.FromTestOverrideCategories(budgetEntryCategories);
 
-        category = budgetTypeCategoryProvider.GenerateAllBudgetCategories()[0];
+        category = budgetCategoryProvider.GenerateAllBudgetCategories()[0];
         subCategory = category.GetSubCategories()[0];
-        category2 = budgetTypeCategoryProvider.GenerateAllBudgetCategories()[1];
+        category2 = budgetCategoryProvider.GenerateAllBudgetCategories()[1];
         subCategory2 = category2.GetSubCategories()[0];
 
         storeService.DeleteStoreIfExists();
 
         trackingService = new TrackingService(
                 storeService,
-                budgetTypeCategoryProvider);
+                budgetCategoryProvider);
         trackingService.initialize();
     }
 
@@ -87,7 +88,7 @@ class TrackingServiceTest extends BaseTest {
         storeService.DeleteStoreIfExists();
         storeService = null;
         budgetCategoryStoreService.DeleteStoreIfExists();
-        budgetTypeCategoryProvider = null;
+        budgetCategoryProvider = null;
         TestHarness.DeleteTestStoreDirectory();
     }
 

@@ -1,7 +1,7 @@
 package org.sture.java.budgeting.utils;
 
 import org.sture.java.budgeting.developer.Developer;
-import org.sture.java.budgeting.services.DirectoryFileProvider;
+import org.sture.java.budgeting.providers.DirectoryFileProvider;
 
 import java.io.File;
 import java.nio.file.Files;

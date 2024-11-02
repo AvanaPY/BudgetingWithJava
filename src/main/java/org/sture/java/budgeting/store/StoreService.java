@@ -2,7 +2,7 @@ package org.sture.java.budgeting.store;
 
 import org.sture.java.budgeting.services.job.Job;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
-import org.sture.java.budgeting.services.DirectoryFileProvider;
+import org.sture.java.budgeting.providers.DirectoryFileProvider;
 import org.sture.java.budgeting.utils.DTO;
 
 import java.io.*;

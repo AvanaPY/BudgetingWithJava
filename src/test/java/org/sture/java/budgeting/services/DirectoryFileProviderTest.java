@@ -1,6 +1,7 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.BaseTest;
+import org.sture.java.budgeting.providers.DirectoryFileProvider;
 import org.sture.java.budgeting.utils.TestHarness;
 import org.junit.jupiter.api.Test;
 

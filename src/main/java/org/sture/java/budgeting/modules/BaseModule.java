@@ -1,4 +1,8 @@
 package org.sture.java.budgeting.modules;
 
-public class BaseModule {
+import org.sture.java.budgeting.di.DiContainer;
+
+public interface BaseModule {
+    void RegisterModule(DiContainer container);
+    void OnAllModulesLoaded(DiContainer container);
 }

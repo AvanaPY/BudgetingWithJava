@@ -11,12 +11,16 @@ import javafx.stage.Stage;
 import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.di.RegisterType;
-import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
+import org.sture.java.budgeting.modules.BaseModule;
+import org.sture.java.budgeting.providers.ProviderModule;
+import org.sture.java.budgeting.services.category.module.CategoryModule;
+import org.sture.java.budgeting.services.job.module.BackgroundJobModule;
+import org.sture.java.budgeting.services.tracking.module.TrackingModule;
 import org.sture.java.budgeting.store.budgetcategory.dto.BudgetEntryCategoryDTOConverter;
 import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
 import org.sture.java.budgeting.store.tracking.dto.TrackingEntryDTOConverter;
-import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
-import org.sture.java.budgeting.services.DirectoryFileProvider;
+import org.sture.java.budgeting.services.category.BudgetCategoryProvider;
+import org.sture.java.budgeting.providers.DirectoryFileProvider;
 import org.sture.java.budgeting.store.tracking.service.TrackingEntryStoreService;
 import org.sture.java.budgeting.services.tracking.TrackingService;
 import org.sture.java.budgeting.developer.Developer;
@@ -29,17 +33,18 @@ public class BudgetApplication extends Application {
     public static void main(String[] args) {
         container = new DiContainer();
 
-        container.Register(BackgroundJobExecutionService.class, RegisterType.Singleton);
+        BaseModule[] modules = new BaseModule[]{
+                new BackgroundJobModule(),
+                new ProviderModule(),
+                new TrackingModule(),
+                new CategoryModule()
+        };
 
-        container.Register(DirectoryFileProvider.class, RegisterType.Singleton);
+        for(BaseModule module : modules)
+            module.RegisterModule(container);
 
-        container.Register(BudgetEntryCategoryDTOConverter.class, RegisterType.Singleton);
-        container.Register(BudgetCategoryStoreService.class, RegisterType.Singleton);
-        container.Register(BudgetTypeCategoryProvider.class, RegisterType.Singleton);
-
-        container.Register(TrackingEntryDTOConverter.class, RegisterType.Singleton);
-        container.Register(TrackingEntryStoreService.class, RegisterType.Singleton);
-        container.Register(TrackingService.class, RegisterType.Singleton);
+        for(BaseModule module : modules)
+            module.OnAllModulesLoaded(container);
 
         launch(args);
     }

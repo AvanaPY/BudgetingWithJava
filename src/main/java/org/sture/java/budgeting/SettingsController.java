@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import org.sture.java.budgeting.controller.settings.CategoryCell;
-import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
+import org.sture.java.budgeting.services.category.BudgetCategoryProvider;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 
 import java.util.Arrays;
@@ -18,10 +18,10 @@ public class SettingsController {
     private final ObservableList<BudgetEntryCategory> categoriesListViewList = FXCollections.observableArrayList();
     private final ObservableList<BudgetEntryCategory> subCategoriesListViewList = FXCollections.observableArrayList();
 
-    private BudgetTypeCategoryProvider budgetTypeCategoryProvider;
+    private BudgetCategoryProvider budgetCategoryProvider;
 
     public void initialize(){
-        budgetTypeCategoryProvider = BudgetApplication.getContainer().ResolveInstance(BudgetTypeCategoryProvider.class);
+        budgetCategoryProvider = BudgetApplication.getContainer().ResolveInstance(BudgetCategoryProvider.class);
 
         categoriesListView.setCellFactory(budgetEntryCategoryListView -> new CategoryCell());
         categoriesListView.setOnMouseClicked(mouseEvent -> {
@@ -31,7 +31,7 @@ public class SettingsController {
         });
 
         categoriesListView.setItems(categoriesListViewList);
-        categoriesListViewList.addAll(Arrays.asList(budgetTypeCategoryProvider.GenerateAllBudgetCategories()));
+        categoriesListViewList.addAll(Arrays.asList(budgetCategoryProvider.GenerateAllBudgetCategories()));
 
         categoriesListView.getSelectionModel().selectIndices(0);
         subCategoriesListView.setItems(subCategoriesListViewList);

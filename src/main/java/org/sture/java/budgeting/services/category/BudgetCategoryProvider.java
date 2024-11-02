@@ -1,14 +1,14 @@
-package org.sture.java.budgeting.services;
+package org.sture.java.budgeting.services.category;
 
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
 import org.sture.java.budgeting.utils.TestHarness;
 
-public class BudgetTypeCategoryProvider {
+public class BudgetCategoryProvider {
     private final BudgetCategoryStoreService budgetCategoryStoreService;
     private BudgetEntryCategory[] budgetEntryCategories;
 
-    public BudgetTypeCategoryProvider(BudgetCategoryStoreService budgetCategoryStoreService) {
+    public BudgetCategoryProvider(BudgetCategoryStoreService budgetCategoryStoreService) {
         this.budgetCategoryStoreService = budgetCategoryStoreService;
 
         budgetEntryCategories = budgetCategoryStoreService.Read();
