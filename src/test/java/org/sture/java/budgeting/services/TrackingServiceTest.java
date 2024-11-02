@@ -3,12 +3,12 @@ package org.sture.java.budgeting.services;
 import org.sture.java.budgeting.BaseTest;
 import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
-import org.sture.java.budgeting.services.category.BudgetCategoryProvider;
+import org.sture.java.budgeting.services.category.CategoryService;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.services.tracking.TrackingService;
-import org.sture.java.budgeting.store.budgetcategory.dto.BudgetEntryCategoryDTOConverter;
-import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
+import org.sture.java.budgeting.store.category.dto.CategoryDTOConverter;
+import org.sture.java.budgeting.store.category.service.CategoryStoreService;
 import org.sture.java.budgeting.store.tracking.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
@@ -27,8 +27,8 @@ class TrackingServiceTest extends BaseTest {
     private TrackingService trackingService;
     private TrackingEntryStoreService storeService;
 
-    private BudgetCategoryStoreService budgetCategoryStoreService;
-    private BudgetCategoryProvider budgetCategoryProvider;
+    private CategoryStoreService categoryStoreService;
+    private CategoryService categoryService;
 
     private final LocalDate date = LocalDate.of(2024, 10, 22);
     private final String details  = "";
@@ -64,21 +64,21 @@ class TrackingServiceTest extends BaseTest {
                 dtoFactory,
                 jes);
 
-        BudgetEntryCategoryDTOConverter categoryDtoFactory = new BudgetEntryCategoryDTOConverter();
-        budgetCategoryStoreService = new BudgetCategoryStoreService(categoryDtoFactory, jes);
-        budgetCategoryProvider = new BudgetCategoryProvider(budgetCategoryStoreService);
-        budgetCategoryProvider.FromTestOverrideCategories(budgetEntryCategories);
+        CategoryDTOConverter categoryDtoFactory = new CategoryDTOConverter();
+        categoryStoreService = new CategoryStoreService(categoryDtoFactory, jes);
+        categoryService = new CategoryService(categoryStoreService);
+        categoryService.FromTestOverrideCategories(budgetEntryCategories);
 
-        category = budgetCategoryProvider.GenerateAllBudgetCategories()[0];
+        category = categoryService.GenerateAllBudgetCategories()[0];
         subCategory = category.GetSubCategories()[0];
-        category2 = budgetCategoryProvider.GenerateAllBudgetCategories()[1];
+        category2 = categoryService.GenerateAllBudgetCategories()[1];
         subCategory2 = category2.GetSubCategories()[0];
 
         storeService.DeleteStoreIfExists();
 
         trackingService = new TrackingService(
                 storeService,
-                budgetCategoryProvider);
+                categoryService);
         trackingService.initialize();
     }
 
@@ -87,8 +87,8 @@ class TrackingServiceTest extends BaseTest {
         trackingService = null;
         storeService.DeleteStoreIfExists();
         storeService = null;
-        budgetCategoryStoreService.DeleteStoreIfExists();
-        budgetCategoryProvider = null;
+        categoryStoreService.DeleteStoreIfExists();
+        categoryService = null;
         TestHarness.DeleteTestStoreDirectory();
     }
 

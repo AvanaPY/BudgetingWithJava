@@ -2,7 +2,7 @@ package org.sture.java.budgeting.store.tracking.dto;
 
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
-import org.sture.java.budgeting.utils.DTO;
+import org.sture.java.budgeting.store.DTO;
 
 import java.io.Serializable;
 import java.time.LocalDate;

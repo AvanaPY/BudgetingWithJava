@@ -1,17 +1,17 @@
 package org.sture.java.budgeting.services.category;
 
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
+import org.sture.java.budgeting.store.category.service.CategoryStoreService;
 import org.sture.java.budgeting.utils.TestHarness;
 
-public class BudgetCategoryProvider {
-    private final BudgetCategoryStoreService budgetCategoryStoreService;
+public class CategoryService {
+    private final CategoryStoreService categoryStoreService;
     private BudgetEntryCategory[] budgetEntryCategories;
 
-    public BudgetCategoryProvider(BudgetCategoryStoreService budgetCategoryStoreService) {
-        this.budgetCategoryStoreService = budgetCategoryStoreService;
+    public CategoryService(CategoryStoreService categoryStoreService) {
+        this.categoryStoreService = categoryStoreService;
 
-        budgetEntryCategories = budgetCategoryStoreService.Read();
+        budgetEntryCategories = categoryStoreService.Read();
         if(budgetEntryCategories == null || budgetEntryCategories.length == 0)
         {
             var incomeCategory = new BudgetEntryCategory("Income", true);
@@ -47,7 +47,7 @@ public class BudgetCategoryProvider {
 
     private void setCategories(BudgetEntryCategory[] cats){
         budgetEntryCategories = cats;
-        this.budgetCategoryStoreService.Store(budgetEntryCategories);
+        this.categoryStoreService.Store(budgetEntryCategories);
 
     }
 

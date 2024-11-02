@@ -1,21 +1,21 @@
-package org.sture.java.budgeting.store.budgetcategory.dto;
+package org.sture.java.budgeting.store.category.dto;
 
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.utils.DTO;
+import org.sture.java.budgeting.store.DTO;
 
 import java.io.Serializable;
 
-public class BudgetEntryCategoryDTO implements DTO<BudgetEntryCategory>, Serializable {
+public class CategoryDTO implements DTO<BudgetEntryCategory>, Serializable {
     private final String name;
     private final boolean isPositive;
-    private final BudgetEntryCategoryDTO[] subCategories;
+    private final CategoryDTO[] subCategories;
 
-    public BudgetEntryCategoryDTO(BudgetEntryCategory category){
+    public CategoryDTO(BudgetEntryCategory category){
         name = category.name();
         isPositive = category.isPositive();
-        subCategories = new BudgetEntryCategoryDTO[category.GetSubCategories().length];
+        subCategories = new CategoryDTO[category.GetSubCategories().length];
         for(int i = 0; i < subCategories.length; i++){
-            subCategories[i] = new BudgetEntryCategoryDTO(category.GetSubCategory(i));
+            subCategories[i] = new CategoryDTO(category.GetSubCategory(i));
         }
     }
 

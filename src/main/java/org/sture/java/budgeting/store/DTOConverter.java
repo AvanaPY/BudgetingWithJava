@@ -1,7 +1,5 @@
 package org.sture.java.budgeting.store;
 
-import org.sture.java.budgeting.utils.DTO;
-
 import java.util.List;
 
 public interface DTOConverter<T, TDto extends DTO<T>> {

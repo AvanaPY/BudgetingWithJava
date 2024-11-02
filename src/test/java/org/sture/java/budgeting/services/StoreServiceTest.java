@@ -5,7 +5,7 @@ import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.store.DTOConverter;
 import org.sture.java.budgeting.store.StoreService;
-import org.sture.java.budgeting.utils.DTO;
+import org.sture.java.budgeting.store.DTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
