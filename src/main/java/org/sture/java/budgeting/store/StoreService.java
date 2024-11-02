@@ -2,7 +2,6 @@ package org.sture.java.budgeting.store;
 
 import org.sture.java.budgeting.services.job.Job;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
-import org.sture.java.budgeting.store.dto.DTOConverter;
 import org.sture.java.budgeting.services.DirectoryFileProvider;
 import org.sture.java.budgeting.utils.DTO;
 
@@ -163,8 +162,10 @@ public abstract class StoreService<T, TDto extends DTO<T>> {
             }
             try {
                 return (T[])objectInputStream.readObject();
-            } catch (ClassNotFoundException | IOException e) {
-                throw new RuntimeException(e);
+            } catch (InvalidClassException | ClassNotFoundException e){
+                throw new RuntimeException("Failed to read entries. Could not parse class: " + e.getMessage());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read entries: An IO Error occured.", e);
             }
         }
 

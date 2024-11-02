@@ -3,14 +3,13 @@ package org.sture.java.budgeting.services;
 import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
-import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
+import org.sture.java.budgeting.store.tracking.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sture.java.budgeting.BaseTest;
-import org.sture.java.budgeting.store.TrackingEntryStoreService;
+import org.sture.java.budgeting.store.tracking.service.TrackingEntryStoreService;
 
 import java.time.LocalDate;
 
@@ -38,7 +37,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
                 LocalDate.of(2024, 10, 22),
                 LocalDate.of(2024, 10, 22),
                 new BudgetEntryCategory("Income", true),
-                new BudgetEntrySubCategory("Employment"),
+                new BudgetEntryCategory("Employment"),
                 "Details",
                 100.0d,
                 100.0d
@@ -100,7 +99,7 @@ class TrackingEntryStoreServiceTest extends BaseTest {
                 LocalDate.of(2024, 10, 22),
                 LocalDate.of(2024, 10, 22),
                 new BudgetEntryCategory("Income", true),
-                new BudgetEntrySubCategory("Employment"),
+                new BudgetEntryCategory("Employment"),
                 "Details",
                 42,
                 69

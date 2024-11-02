@@ -1,7 +1,6 @@
-package org.sture.java.budgeting.store.dto;
+package org.sture.java.budgeting.store.tracking.dto;
 
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import org.sture.java.budgeting.utils.DTO;
 
@@ -12,10 +11,11 @@ public class TrackingEntryDTO implements DTO<TrackingEntry>, Serializable {
     private final LocalDate date;
     private final LocalDate effectiveDate;
     private final BudgetEntryCategory category;
-    private final BudgetEntrySubCategory subCategory;
+    private final BudgetEntryCategory subCategory;
     private final String details;
     private final double amount;
     private final double balance;
+
     public TrackingEntryDTO(TrackingEntry entry){
         this.date           = entry.getDate();
         this.effectiveDate  = entry.getEffectiveDate();

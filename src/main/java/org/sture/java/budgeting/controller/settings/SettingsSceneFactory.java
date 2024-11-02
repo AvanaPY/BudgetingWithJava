@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.sture.java.budgeting.SettingsController;
 import org.sture.java.budgeting.di.DiContainer;
@@ -32,6 +33,8 @@ public class SettingsSceneFactory {
             stage.setScene(scene);
             stage.setResizable(false);
             stage.setTitle("Settings");
+            Image image = new Image("settings-icon.png");
+            stage.getIcons().add(image);
 
             p = new SettingsControllerScenePackage(stage, scene, controller);
             return p;

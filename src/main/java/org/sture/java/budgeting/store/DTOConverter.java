@@ -1,4 +1,4 @@
-package org.sture.java.budgeting.store.dto;
+package org.sture.java.budgeting.store;
 
 import org.sture.java.budgeting.utils.DTO;
 
@@ -9,5 +9,4 @@ public interface DTOConverter<T, TDto extends DTO<T>> {
     TDto[] DoMagicToDTO(List<TDto> lst);
     T ConvertFromDTO(TDto t);
     T[] DoMagicFromDTO(List<T> lst);
-
 }

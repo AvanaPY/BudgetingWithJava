@@ -1,18 +1,21 @@
 package org.sture.java.budgeting.services;
 
 import org.sture.java.budgeting.BaseTest;
+import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 import org.sture.java.budgeting.mock.controller.StatusBarControllerMock;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.tracking.TrackingService;
-import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
+import org.sture.java.budgeting.store.budgetcategory.dto.BudgetEntryCategoryDTOConverter;
+import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
+import org.sture.java.budgeting.store.tracking.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.sture.java.budgeting.store.TrackingEntryStoreService;
+import org.sture.java.budgeting.store.tracking.service.TrackingEntryStoreService;
+import org.sture.java.budgeting.utils.TestHarness;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,47 +26,58 @@ class TrackingServiceTest extends BaseTest {
     private TrackingService trackingService;
     private TrackingEntryStoreService storeService;
 
+    private BudgetCategoryStoreService budgetCategoryStoreService;
+    private BudgetTypeCategoryProvider budgetTypeCategoryProvider;
+
     private final LocalDate date = LocalDate.of(2024, 10, 22);
     private final String details  = "";
     private final double amount = 100;
     private BudgetEntryCategory category;
     private BudgetEntryCategory category2;
-    private BudgetEntrySubCategory subCategory;
-    private BudgetEntrySubCategory subCategory2;
+    private BudgetEntryCategory subCategory;
+    private BudgetEntryCategory subCategory2;
 
     private final BudgetEntryCategory[] budgetEntryCategories = new BudgetEntryCategory[]{
-            new BudgetEntryCategory("Income", true),
-            new BudgetEntryCategory("Expense", false)
+            new BudgetEntryCategory("Income", true,
+                    new BudgetEntryCategory[] {
+                            new BudgetEntryCategory("Employment"),
+                            new BudgetEntryCategory("CSN")
+                    }),
+            new BudgetEntryCategory("Expense", false,
+                    new BudgetEntryCategory[] {
+                            new BudgetEntryCategory("Rent"),
+                            new BudgetEntryCategory("Bills")
+                    })
         };
 
     @BeforeEach
     void setUp() {
+        // Setup mocks
+        IStatusBarController statusBarControllerMock = new StatusBarControllerMock();
+
+        // Setup necessary services
+        BackgroundJobExecutionService jes = new BackgroundJobExecutionService(statusBarControllerMock);
+
         TrackingEntryDTOConverter dtoFactory = new TrackingEntryDTOConverter();
-        BudgetTypeCategoryProvider categoryProvider = new BudgetTypeCategoryProvider();
-
-        categoryProvider.FromTestOverrideCategories(budgetEntryCategories);
-        categoryProvider.FromTestMakeSubCategoryEntry(budgetEntryCategories[0], new BudgetEntrySubCategory[]{
-                new BudgetEntrySubCategory("Employment"),
-                new BudgetEntrySubCategory("CSN")
-        });
-        categoryProvider.FromTestMakeSubCategoryEntry(budgetEntryCategories[1], new BudgetEntrySubCategory[]{
-                new BudgetEntrySubCategory("Rent"),
-                new BudgetEntrySubCategory("Bills")
-        });
-
-        category = categoryProvider.GenerateAllBudgetCategories()[0];
-        subCategory = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category)[0];
-        category2 = categoryProvider.GenerateAllBudgetCategories()[1];
-        subCategory2 = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category2)[0];
-
         storeService = new TrackingEntryStoreService(
                 dtoFactory,
-                new BackgroundJobExecutionService(new StatusBarControllerMock()));
+                jes);
+
+        BudgetEntryCategoryDTOConverter categoryDtoFactory = new BudgetEntryCategoryDTOConverter();
+        budgetCategoryStoreService = new BudgetCategoryStoreService(categoryDtoFactory, jes);
+        budgetTypeCategoryProvider  = new BudgetTypeCategoryProvider(budgetCategoryStoreService);
+        budgetTypeCategoryProvider.FromTestOverrideCategories(budgetEntryCategories);
+
+        category = budgetTypeCategoryProvider.GenerateAllBudgetCategories()[0];
+        subCategory = category.GetSubCategories()[0];
+        category2 = budgetTypeCategoryProvider.GenerateAllBudgetCategories()[1];
+        subCategory2 = category2.GetSubCategories()[0];
+
         storeService.DeleteStoreIfExists();
 
         trackingService = new TrackingService(
                 storeService,
-                categoryProvider);
+                budgetTypeCategoryProvider);
         trackingService.initialize();
     }
 
@@ -72,6 +86,9 @@ class TrackingServiceTest extends BaseTest {
         trackingService = null;
         storeService.DeleteStoreIfExists();
         storeService = null;
+        budgetCategoryStoreService.DeleteStoreIfExists();
+        budgetTypeCategoryProvider = null;
+        TestHarness.DeleteTestStoreDirectory();
     }
 
     @Test
@@ -138,7 +155,7 @@ class TrackingServiceTest extends BaseTest {
         {
             assertThrows(
                     InvalidEntryException.class,
-                    () -> trackingService.addNewEntry(date, category, new BudgetEntrySubCategory("Invalid"), details, amount)
+                    () -> trackingService.addNewEntry(date, category, new BudgetEntryCategory("Invalid"), details, amount)
             );
         }
     }
@@ -146,13 +163,13 @@ class TrackingServiceTest extends BaseTest {
     @Test
     void TestCategoriesChangeWhenChangingBudgetType(){
         trackingService.UpdateCategories(category);
-        BudgetEntrySubCategory[] initialCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntrySubCategory[0]);
+        BudgetEntryCategory[] initialCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntryCategory[0]);
 
         trackingService.UpdateCategories(category2);
-        BudgetEntrySubCategory[] secondCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntrySubCategory[0]);
+        BudgetEntryCategory[] secondCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntryCategory[0]);
 
         trackingService.UpdateCategories(category);
-        BudgetEntrySubCategory[] thirdCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntrySubCategory[0]);
+        BudgetEntryCategory[] thirdCategories = trackingService.GetBudgetSubCategoryList().toArray(new BudgetEntryCategory[0]);
 
         assertThrows(
                 Exception.class,

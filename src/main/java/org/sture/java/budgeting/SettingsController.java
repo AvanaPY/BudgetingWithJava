@@ -8,16 +8,15 @@ import javafx.scene.input.MouseButton;
 import org.sture.java.budgeting.controller.settings.CategoryCell;
 import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 
 import java.util.Arrays;
 
 public class SettingsController {
     @FXML ListView<BudgetEntryCategory> categoriesListView;
-    @FXML ListView<BudgetEntrySubCategory> subCategoriesListView;
+    @FXML ListView<BudgetEntryCategory> subCategoriesListView;
 
     private final ObservableList<BudgetEntryCategory> categoriesListViewList = FXCollections.observableArrayList();
-    private final ObservableList<BudgetEntrySubCategory> subCategoriesListViewList = FXCollections.observableArrayList();
+    private final ObservableList<BudgetEntryCategory> subCategoriesListViewList = FXCollections.observableArrayList();
 
     private BudgetTypeCategoryProvider budgetTypeCategoryProvider;
 
@@ -26,10 +25,8 @@ public class SettingsController {
 
         categoriesListView.setCellFactory(budgetEntryCategoryListView -> new CategoryCell());
         categoriesListView.setOnMouseClicked(mouseEvent -> {
-            if(mouseEvent.getButton() == MouseButton.PRIMARY
-                    && mouseEvent.getClickCount() == 2
-                    && categoriesListView.getSelectionModel().getSelectedItem() != null){
-                OnSelectedCategoryDoubleClicked();
+            if(mouseEvent.getButton() == MouseButton.PRIMARY ) {
+                categoriesListViewClicked();
             }
         });
 
@@ -39,13 +36,11 @@ public class SettingsController {
         categoriesListView.getSelectionModel().selectIndices(0);
         subCategoriesListView.setItems(subCategoriesListViewList);
         subCategoriesListViewList.setAll(
-                Arrays.asList(budgetTypeCategoryProvider.GenerateSubCategoriesFromBudgetCategory(
-                        categoriesListView.getSelectionModel().getSelectedItem()
-                )));
-    }
-
-    public void OnSelectedCategoryDoubleClicked(){
-        var selected = categoriesListView.getSelectionModel().getSelectedItem();
+                Arrays.asList(categoriesListView
+                        .getSelectionModel()
+                        .getSelectedItem()
+                        .GetSubCategories()
+                ));
     }
 
     public void categoriesListViewClicked(){
@@ -65,9 +60,6 @@ public class SettingsController {
 
     private void updateSubCategoriesListViewWithCorrectSubCategoriesForCategory(BudgetEntryCategory cat){
         subCategoriesListViewList.clear();
-        subCategoriesListViewList.addAll(
-                Arrays.asList(budgetTypeCategoryProvider.GenerateSubCategoriesFromBudgetCategory(
-                        cat
-                )));
+        subCategoriesListViewList.addAll(Arrays.asList(cat.GetSubCategories()));
     }
 }

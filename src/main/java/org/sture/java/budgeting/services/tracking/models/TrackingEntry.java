@@ -11,7 +11,7 @@ public class TrackingEntry {
     private final LocalDate date;
     private final LocalDate effectiveDate;
     private final SimpleObjectProperty<BudgetEntryCategory> category;
-    private final SimpleObjectProperty<BudgetEntrySubCategory> subCategory;
+    private final SimpleObjectProperty<BudgetEntryCategory> subCategory;
     private final SimpleStringProperty details;
     private final SimpleDoubleProperty amount;
     private final DoubleProperty balance;
@@ -20,7 +20,7 @@ public class TrackingEntry {
             LocalDate date,
             LocalDate effectiveDate,
             BudgetEntryCategory category,
-            BudgetEntrySubCategory subCategory,
+            BudgetEntryCategory subCategory,
             String details,
             double amount,
             double balance)
@@ -61,7 +61,7 @@ public class TrackingEntry {
         return category.get();
     }
 
-    public BudgetEntrySubCategory getSubCategory() { return subCategory.get(); }
+    public BudgetEntryCategory getSubCategory() { return subCategory.get(); }
 
     public String getDetails()
     {

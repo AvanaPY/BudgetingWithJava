@@ -2,13 +2,12 @@ package org.sture.java.budgeting.services.tracking;
 
 import org.sture.java.budgeting.exceptions.InvalidEntryException;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.tracking.models.TrackingEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
-import org.sture.java.budgeting.store.TrackingEntryStoreService;
+import org.sture.java.budgeting.store.tracking.service.TrackingEntryStoreService;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -17,7 +16,7 @@ public class TrackingService {
     private final TrackingEntryStoreService storeService;
     private final ObservableList<TrackingEntry> trackingEntryObservableList;
     private final ObservableList<BudgetEntryCategory> budgetEntryCategoryObservableList;
-    private final ObservableList<BudgetEntrySubCategory> budgetEntrySubCategoryObservableList;
+    private final ObservableList<BudgetEntryCategory> budgetEntrySubCategoryObservableList;
     private final BudgetTypeCategoryProvider categoryProvider;
     private boolean writeStoreOnEntriesChanged;
 
@@ -30,7 +29,7 @@ public class TrackingService {
         budgetEntrySubCategoryObservableList = FXCollections.observableArrayList();
         budgetEntryCategoryObservableList = FXCollections.observableArrayList();
 
-        setOnEntryListChangedThenWritestore(false);
+        setOnEntryListChangedThenWriteStore(false);
         trackingEntryObservableList.addListener(this::trackingEntryAddedListener);
     }
 
@@ -39,7 +38,7 @@ public class TrackingService {
         initializeCategoryTypeList();
     }
 
-    public void setOnEntryListChangedThenWritestore(boolean value){
+    public void setOnEntryListChangedThenWriteStore(boolean value){
         writeStoreOnEntriesChanged = value;
     }
 
@@ -67,7 +66,7 @@ public class TrackingService {
         return budgetEntryCategoryObservableList;
     }
 
-    public ObservableList<BudgetEntrySubCategory> GetBudgetSubCategoryList(){
+    public ObservableList<BudgetEntryCategory> GetBudgetSubCategoryList(){
         return budgetEntrySubCategoryObservableList;
     }
 
@@ -76,20 +75,20 @@ public class TrackingService {
     }
 
     private void initializeCategoryTypeList(){
-        BudgetEntryCategory type = budgetEntryCategoryObservableList.getFirst();
-        budgetEntrySubCategoryObservableList.addAll(categoryProvider.GenerateSubCategoriesFromBudgetCategory(type));
+        BudgetEntryCategory category = budgetEntryCategoryObservableList.getFirst();
+        budgetEntrySubCategoryObservableList.addAll(category.GetSubCategories());
     }
 
     public void UpdateCategories(BudgetEntryCategory category){
         budgetEntrySubCategoryObservableList.clear();
-        BudgetEntrySubCategory[] subCategories = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category);
+        BudgetEntryCategory[] subCategories = category.GetSubCategories();
         budgetEntrySubCategoryObservableList.addAll(subCategories);
     }
 
     public void addNewEntry(
             LocalDate date,
             BudgetEntryCategory category,
-            BudgetEntrySubCategory subCategory,
+            BudgetEntryCategory subCategory,
             String details,
             Double amount) throws InvalidEntryException {
         if(date == null || amount == null)
@@ -127,9 +126,9 @@ public class TrackingService {
             writeStore();
     }
 
-    private void verifyValidSubCategoryForCategory(BudgetEntryCategory category, BudgetEntrySubCategory subCategory) {
-        BudgetEntrySubCategory[] validSubCategories = categoryProvider.GenerateSubCategoriesFromBudgetCategory(category);
-        for(BudgetEntrySubCategory validCat : validSubCategories)
+    private void verifyValidSubCategoryForCategory(BudgetEntryCategory category, BudgetEntryCategory subCategory) {
+        BudgetEntryCategory[] validSubCategories = category.GetSubCategories();
+        for(BudgetEntryCategory validCat : validSubCategories)
             if(subCategory.equals(validCat))
                 return;
         throw new InvalidEntryException("Category <" + subCategory + "> is an invalid category. Expected any of " + Arrays.toString(validSubCategories));

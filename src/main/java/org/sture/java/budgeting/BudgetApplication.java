@@ -1,11 +1,6 @@
 package org.sture.java.budgeting;
 
 import javafx.scene.layout.BorderPane;
-import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
-import org.sture.java.budgeting.di.DiContainer;
-import org.sture.java.budgeting.di.RegisterType;
-import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
-import org.sture.java.budgeting.store.dto.TrackingEntryDTOConverter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -13,10 +8,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
+import org.sture.java.budgeting.di.DiContainer;
+import org.sture.java.budgeting.di.RegisterType;
+import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
+import org.sture.java.budgeting.store.budgetcategory.dto.BudgetEntryCategoryDTOConverter;
+import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
+import org.sture.java.budgeting.store.tracking.dto.TrackingEntryDTOConverter;
 import org.sture.java.budgeting.services.BudgetTypeCategoryProvider;
 import org.sture.java.budgeting.services.DirectoryFileProvider;
-import org.sture.java.budgeting.store.TrackingEntryStoreService;
+import org.sture.java.budgeting.store.tracking.service.TrackingEntryStoreService;
 import org.sture.java.budgeting.services.tracking.TrackingService;
+import org.sture.java.budgeting.developer.Developer;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -29,6 +32,9 @@ public class BudgetApplication extends Application {
         container.Register(BackgroundJobExecutionService.class, RegisterType.Singleton);
 
         container.Register(DirectoryFileProvider.class, RegisterType.Singleton);
+
+        container.Register(BudgetEntryCategoryDTOConverter.class, RegisterType.Singleton);
+        container.Register(BudgetCategoryStoreService.class, RegisterType.Singleton);
         container.Register(BudgetTypeCategoryProvider.class, RegisterType.Singleton);
 
         container.Register(TrackingEntryDTOConverter.class, RegisterType.Singleton);
@@ -39,9 +45,11 @@ public class BudgetApplication extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         Scene scene = MainSceneFactory(container);
+
         stage.setScene(scene);
+//        stage.setScene(SettingsSceneFactory.Build(getClass(), container).scene);
 
         Image image = new Image("budget-icon.png");
         stage.getIcons().add(image);
@@ -53,26 +61,44 @@ public class BudgetApplication extends Application {
         return FXMLLoader.load(Objects.requireNonNull(getClass().getResource(resourceName)));
     }
 
-    private Scene MainSceneFactory(DiContainer container) throws IOException {
+    private Scene MainSceneFactory(DiContainer container) {
         Group root = new Group();
 
-        FXMLLoader statusBarViewLoader = new FXMLLoader(getClass().getResource("status-bar.fxml"));
-        Parent statusBarView = statusBarViewLoader.load();
-        StatusBarController statusBarController = statusBarViewLoader.getController();
-        container.Register(IStatusBarController.class, statusBarController);
+        Developer.DebugMessage("Loading FXML files...", true);
 
-        FXMLLoader homeViewLoader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
-        Parent homeView = homeViewLoader.load();
-        HomeController homeController = homeViewLoader.getController();
-        container.Register(HomeController.class, homeController);
+        // Status bar
+        Developer.DebugMessage("status-bar.fxml", true);
 
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(homeView);
-        borderPane.setBottom(statusBarView);
+        try {
+            FXMLLoader statusBarViewLoader = new FXMLLoader(getClass().getResource("status-bar.fxml"));
+            Parent statusBarView = statusBarViewLoader.load();
+            StatusBarController statusBarController = statusBarViewLoader.getController();
+            container.Register(IStatusBarController.class, statusBarController);
 
-        root.getChildren().add(borderPane);
+            Developer.DebugMessage("Loading status-bar.fxml: " + (statusBarView != null ? "success" : "failed"));
+            Developer.DeindentDebugMessagesOnce();
 
-        return new Scene(root);
+            // Home view
+            Developer.DebugMessage("hello-bar.fxml", true);
+
+            FXMLLoader homeViewLoader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
+            Parent homeView = homeViewLoader.load();
+            HomeController homeController = homeViewLoader.getController();
+            container.Register(HomeController.class, homeController);
+
+            Developer.DebugMessage("Loading home-view.fxml: " + (homeView != null ? "success" : "failed"));
+            Developer.DeindentDebugMessagesOnce();
+
+            BorderPane borderPane = new BorderPane();
+            borderPane.setCenter(homeView);
+            borderPane.setBottom(statusBarView);
+
+            root.getChildren().add(borderPane);
+
+            return new Scene(root);
+        } catch (IOException e){
+            throw new RuntimeException("Failed to build scene: " + e.getMessage(), e);
+        }
     }
 
     @SuppressWarnings("EmptyMethod")

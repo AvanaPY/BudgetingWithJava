@@ -8,7 +8,6 @@ import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.services.job.Job;
 import org.sture.java.budgeting.services.job.BackgroundJobExecutionService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.tracking.TrackingService;
 import org.sture.java.budgeting.utils.Utils;
 import javafx.application.Platform;
@@ -39,7 +38,7 @@ public class HomeController {
     // Widgets for adding new data
     @FXML DatePicker datePicker;
     @FXML ComboBox<BudgetEntryCategory> budgetEntryCategoryComboBox;
-    @FXML ComboBox<BudgetEntrySubCategory> budgetEntrySubCategoryComboBox;
+    @FXML ComboBox<BudgetEntryCategory> budgetEntrySubCategoryComboBox;
     @FXML TextField amountTextField;
     @FXML TextArea detailsTextArea;
     @FXML Button submitEntryDataButton;
@@ -58,7 +57,7 @@ public class HomeController {
         trackingService = container.ResolveInstance(TrackingService.class);
         trackingService.initialize();
         trackingService.loadStoreIfExists();
-        trackingService.setOnEntryListChangedThenWritestore(true);
+        trackingService.setOnEntryListChangedThenWriteStore(true);
 
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         effectiveDateColumn.setCellValueFactory(new PropertyValueFactory<>("effectiveDate"));
@@ -126,7 +125,7 @@ public class HomeController {
     public void buttonAddNewEntry() {
         LocalDate date                      = datePicker.getValue();
         BudgetEntryCategory budgetCategory  = budgetEntryCategoryComboBox.getValue();
-        BudgetEntrySubCategory subCategory  = budgetEntrySubCategoryComboBox.getValue();
+        BudgetEntryCategory subCategory  = budgetEntrySubCategoryComboBox.getValue();
         String details                      = detailsTextArea.getText();
         Double amount                       = Utils.parseTextAsDoubleOrNull(amountTextField.getText());
 

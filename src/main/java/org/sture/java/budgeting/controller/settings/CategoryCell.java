@@ -30,19 +30,27 @@ public class CategoryCell extends ListCell<BudgetEntryCategory> {
         button.setMaxHeight(15);
         button.setFont(new Font("", 10));
 
+        setGraphic(hbox);
+
         setEditable(true);
     }
 
     @Override
     public void startEdit(){
         super.startEdit();
+        label.requestFocus();
         System.out.println("Starting edit");
     }
 
     @Override
     public void commitEdit(BudgetEntryCategory t){
         super.commitEdit(t);
-        System.out.println("Commit edit: " + t);
+    }
+
+    @Override
+    public void cancelEdit(){
+        super.cancelEdit();
+        System.out.println("Cancelling edit");
     }
 
     @Override
@@ -55,7 +63,6 @@ public class CategoryCell extends ListCell<BudgetEntryCategory> {
             return;
         }
 
-        System.out.println("owo updated to " + item);
 
         lastItem = item;
         label.setText(item.toString());

@@ -1,7 +1,6 @@
 package org.sture.java.budgeting.di;
 import org.sture.java.budgeting.developer.Developer;
-import org.sture.java.budgeting.exceptions.di.FailedToRegisterClassException;
-import org.sture.java.budgeting.exceptions.di.FailedToResolveClassException;
+import org.sture.java.budgeting.exceptions.di.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -48,7 +47,7 @@ public class DiContainer {
      */
     public <T> void Register(Class<T> clazz, T instance) {
         if(instance.getClass().isInstance(clazz))
-            throw new FailedToRegisterClassException("Cannot register " + instance + " as instance of class " + clazz);
+            throw new FailedToRegisterClassException("Cannot register " + instance + " as instance of class " + clazz.getSimpleName());
         storeInstanceOfSingleton(clazz, instance);
     }
 
@@ -80,35 +79,41 @@ public class DiContainer {
      * @return An instance of type {@code T}
      * @throws FailedToResolveClassException If it fails to resolve {@code clazz} for any reason
      */
-    public <T> T ResolveInstance(Class<T> clazz) throws FailedToResolveClassException {
-        Developer.DebugMessage(this + " resolving " + clazz);
+    public <T> T ResolveInstance(Class<T> clazz) throws FailedToResolveClassException, ClassNotRegisteredException {
+        Developer.DebugMessage("Resolving " + clazz.getSimpleName(), true);
 
         if(singletonRegisteredCache.containsKey(clazz)) {
-            Developer.DebugMessage(this + " returns singleton instance of " + clazz);
+            Developer.DebugMessage("Returns singleton instance of " + clazz.getSimpleName());
+            Developer.DeindentDebugMessagesOnce();
             return clazz.cast(singletonRegisteredCache.get(clazz));
         }
 
-        Developer.IndentDebugMessagesOnce();
-        Constructor<?> constructor = ResolveConstructor(clazz);
-        Object[] dependencies = ResolveDependenciesForConstructor(constructor);
-        Developer.DeindentDebugMessagesOnce();
-
-        Developer.DebugMessage("  Identified constructor for " + clazz + " has " + dependencies.length + " dependencies");
+        if(!classInterfaces.contains(clazz))
+            throw new ClassNotRegisteredException(clazz);
 
         T instance;
         try {
+            Constructor<?> constructor = ResolveConstructor(clazz);
+
+            Object[] dependencies = ResolveDependenciesForConstructor(constructor);
+            Developer.DebugMessage("Found constructor and dependencies for " + clazz.getSimpleName());
+            Developer.DeindentDebugMessagesOnce();
+
             instance = clazz.cast(constructor.newInstance(dependencies));
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new FailedToResolveClassException("Constructor could not create instance of " + clazz + ": " + e);
-        } catch (InvocationTargetException e){
-            throw new FailedToResolveClassException("Failed to invoke constructor " + constructor.getName() + ". Dependencies: " + Arrays.toString(dependencies) + " (" + e + ")");
+        } catch (ClassNotRegisteredException e) {
+            throw new FailedToResolveClassException(clazz, e);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new FailedToResolveClassException(clazz, "Constructor could not create instance of class", e);
         }
+
+        Developer.DebugMessage("Resolved " + clazz.getSimpleName() + " as " + instance);
 
         if(registerTypeMap.get(clazz) == RegisterType.Singleton) {
             storeInstanceOfSingleton(clazz, instance);
+            Developer.IndentDebugMessagesOnce();
+            Developer.DebugMessage("Caching instance as Singleton");
+            Developer.DeindentDebugMessagesOnce();
         }
-
-        Developer.DebugMessage(this + " resolved " + clazz);
 
         return instance;
     }
@@ -126,19 +131,19 @@ public class DiContainer {
      * @return An Object[] with all dependencies for {@code constructor}
      * @throws FailedToResolveClassException If it fails to resolve any of the dependencies
      */
-    private Object[] ResolveDependenciesForConstructor(Constructor<?> constructor) throws FailedToResolveClassException {
+    private Object[] ResolveDependenciesForConstructor(Constructor<?> constructor) throws FailedToResolveDependencyForConstructor {
         Class<?>[] parameterClasses = constructor.getParameterTypes();
         Object[] dependencies = new Object[parameterClasses.length];
 
         for(int i = 0; i < parameterClasses.length; i++) {
             try {
-                Developer.DebugMessage("Resolving dependency " + i + " for constructor...");
+                Developer.DebugMessage("Resolving dependency " + (i+1) + "/" + parameterClasses.length + " for constructor <" + constructor.toGenericString() + ">");
                 Developer.IndentDebugMessagesOnce();
                 dependencies[i] = ResolveInstance(parameterClasses[i]);
                 Developer.DeindentDebugMessagesOnce();
             }
-            catch (FailedToResolveClassException e) {
-                throw new FailedToResolveClassException("Failed to resolve dependency: " + e.getMessage());
+            catch(ClassNotRegisteredException | FailedToResolveClassException e) {
+                throw new FailedToResolveDependencyForConstructor(constructor, parameterClasses[i].getSimpleName(), e);
             }
         }
         return dependencies;
@@ -149,27 +154,27 @@ public class DiContainer {
      * @return An instance of a Constructor<?> for clazz
      * @throws FailedToResolveClassException if clazz has more than 1 constructor or a constructor cannot be inferred for a registered interface
      */
-    private Constructor<?> ResolveConstructor(Class<?> clazz) throws FailedToResolveClassException {
+    private Constructor<?> ResolveConstructor(Class<?> clazz) throws ClassNotRegisteredException, FailedToResolveClassException {
         // Trying to resolve a constructor for a null class? why
         if(clazz == null)
             return null;
 
         // Trying to resolve a constructor for a non-registered type? Uhh, handleable but fuck you
         if(!classInterfaces.contains(clazz))
-            throw new FailedToResolveClassException(clazz  + " has not been registered");
+            throw new ClassNotRegisteredException(clazz);
 
         Constructor<?>[] constructors = clazz.getConstructors();
 
         // Just crash if we have more than one constructor; we don't know which to choose from
         if (constructors.length > 1) {
-            throw new FailedToResolveClassException("Class " + clazz.getName() + " has more than one constructors");
+            throw new FailedToResolveClassException(clazz.getSimpleName(), "Class has more than one constructor");
         }
 
         // If we have 0 constructors we will check if it is an interface we are trying to resolve
         // and resolve the constructor the registered class instead
         if(constructors.length == 0) {
             Class<?> c = interfaceClassMap.get(clazz);
-            Developer.DebugMessage(clazz + " has no constructors and interface mapping yielded " + c);
+            Developer.DebugMessage(clazz.getSimpleName() + " has no constructors and interface mapping yielded " + c);
             return ResolveConstructor(c);
         }
 

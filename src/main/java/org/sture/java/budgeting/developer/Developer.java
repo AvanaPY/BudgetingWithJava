@@ -3,19 +3,33 @@ package org.sture.java.budgeting.developer;
 import javafx.scene.input.KeyEvent;
 
 public class Developer {
+    public final static boolean DEBUG = true;
+
     private static int debugMessageIndent = 0;
-    public final static boolean DEBUG = false;
+
     /**
      * Prints a debug message to the console.
      * @param message The message to print
      */
-    public static void DebugMessage(String message)
+    public static void DebugMessage(String message, boolean indentAfter)
     {
         if(DEBUG)
         {
-            String indent = "  ".repeat(debugMessageIndent);
-            System.out.println(indent + message);
+//            String indentStr = "  ".repeat(debugMessageIndent);
+            String indentStr = generateIndentString();
+            System.out.println(indentStr + message);
+
+            if(indentAfter)
+                IndentDebugMessagesOnce();
         }
+    }
+
+    public static String generateIndentString(){
+        return " ".repeat(debugMessageIndent);
+    }
+
+    public static void DebugMessage(String message) {
+        DebugMessage(message, false);
     }
 
     public static void DebugKeyEvent(KeyEvent event){

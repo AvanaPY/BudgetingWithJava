@@ -15,4 +15,8 @@ public class DirectoryFileProvider {
         }
         return dataDirectory;
     }
+
+    public static Path GetTestDataDirectory(){
+        return dataDirectoryDuringTestHarness;
+    }
 }

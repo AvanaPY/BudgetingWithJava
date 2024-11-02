@@ -1,68 +1,63 @@
 package org.sture.java.budgeting.services;
 
-import org.sture.java.budgeting.services.tracking.models.BudgetEntrySubCategory;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
+import org.sture.java.budgeting.store.budgetcategory.service.BudgetCategoryStoreService;
 import org.sture.java.budgeting.utils.TestHarness;
 
-import java.util.HashMap;
-
 public class BudgetTypeCategoryProvider {
+    private final BudgetCategoryStoreService budgetCategoryStoreService;
     private BudgetEntryCategory[] budgetEntryCategories;
-    private final HashMap<String, BudgetEntrySubCategory[]> categorySubCategoryMap;
 
-    public BudgetTypeCategoryProvider() {
-        budgetEntryCategories = new BudgetEntryCategory[]{
-                new BudgetEntryCategory("Income", true),
-                new BudgetEntryCategory("Expense", false),
-                new BudgetEntryCategory("Saving", false)
-        };
-        categorySubCategoryMap = new HashMap<>();
-        categorySubCategoryMap.put(budgetEntryCategories[0].name(), new BudgetEntrySubCategory[] {
-                new BudgetEntrySubCategory("Employment"),
-                new BudgetEntrySubCategory("CSN"),
-                new BudgetEntrySubCategory("Misc"),
-        });
-        categorySubCategoryMap.put(budgetEntryCategories[1].name(), new BudgetEntrySubCategory[] {
-                new BudgetEntrySubCategory("Rent"),
-                new BudgetEntrySubCategory("Utilities"),
-                new BudgetEntrySubCategory("Groceries"),
-                new BudgetEntrySubCategory("Services"),
-                new BudgetEntrySubCategory("Transportation"),
-                new BudgetEntrySubCategory("Entertainment"),
-                new BudgetEntrySubCategory("Eating Out"),
-                new BudgetEntrySubCategory("Clothes"),
-                new BudgetEntrySubCategory("Travel"),
-                new BudgetEntrySubCategory("Loan"),
-                new BudgetEntrySubCategory("Misc"),
-        });
-        categorySubCategoryMap.put(budgetEntryCategories[2].name(), new BudgetEntrySubCategory[] {
-                new BudgetEntrySubCategory("Investment"),
-                new BudgetEntrySubCategory("Buffer"),
-                new BudgetEntrySubCategory("Summer"),
-        });
+    public BudgetTypeCategoryProvider(BudgetCategoryStoreService budgetCategoryStoreService) {
+        this.budgetCategoryStoreService = budgetCategoryStoreService;
+
+        budgetEntryCategories = budgetCategoryStoreService.Read();
+        if(budgetEntryCategories == null || budgetEntryCategories.length == 0)
+        {
+            var incomeCategory = new BudgetEntryCategory("Income", true);
+            incomeCategory.AddSubCategory(new BudgetEntryCategory("Employment"));
+            incomeCategory.AddSubCategory(new BudgetEntryCategory("Misc"));
+
+            var expenseCategory = new BudgetEntryCategory("Expense", false);
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Rent"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Utilities"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Groceries"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Services"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Transportation"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Entertainment"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Eating Out"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Clothes"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Travel"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Loan"));
+            expenseCategory.AddSubCategory(new BudgetEntryCategory("Misc"));
+
+            var savingsCategory = new BudgetEntryCategory("Saving", false);
+            savingsCategory.AddSubCategory(new BudgetEntryCategory("Investment"));
+            savingsCategory.AddSubCategory(new BudgetEntryCategory("Buffer"));
+            savingsCategory.AddSubCategory(new BudgetEntryCategory("Summer"));
+
+            budgetEntryCategories = new BudgetEntryCategory[]{
+                    incomeCategory,
+                    expenseCategory,
+                    savingsCategory
+            };
+            setCategories(budgetEntryCategories);
+        }
+    }
+
+    private void setCategories(BudgetEntryCategory[] cats){
+        budgetEntryCategories = cats;
+        this.budgetCategoryStoreService.Store(budgetEntryCategories);
+
     }
 
     public BudgetEntryCategory[] GenerateAllBudgetCategories() {
         return budgetEntryCategories;
     }
 
-    public BudgetEntrySubCategory[] GenerateSubCategoriesFromBudgetCategory(BudgetEntryCategory category)
-    {
-        if(categorySubCategoryMap.containsKey(category.name()))
-            return categorySubCategoryMap.get(category.name());
-        throw new RuntimeException("Category <" + category + "> does not have any sub categories registered");
-    }
-
     public void FromTestOverrideCategories(BudgetEntryCategory[] categories) {
         if(!TestHarness.isRunningFromTestHarness())
             throw new RuntimeException("Attempted to override categories outside of testing.");
         budgetEntryCategories = categories;
-        categorySubCategoryMap.clear();
-    }
-
-    public void FromTestMakeSubCategoryEntry(BudgetEntryCategory category, BudgetEntrySubCategory[] subCategories){
-        if(!TestHarness.isRunningFromTestHarness())
-            throw new RuntimeException("Attempted to override sub categories outside of testing.");
-        categorySubCategoryMap.put(category.name(), subCategories);
     }
 }
