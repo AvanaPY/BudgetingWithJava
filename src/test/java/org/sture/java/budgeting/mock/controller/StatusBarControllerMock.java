@@ -1,6 +1,7 @@
 package org.sture.java.budgeting.mock.controller;
 
 import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
+import org.sture.java.budgeting.di.DiContainer;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -56,5 +57,10 @@ public class StatusBarControllerMock implements IStatusBarController {
         completed.remove(jobId);
         messages.remove(jobId);
         progress.remove(jobId);
+    }
+
+    @Override
+    public void InitializeControllerWithContainer(DiContainer container) {
+        // Empty on purpose
     }
 }

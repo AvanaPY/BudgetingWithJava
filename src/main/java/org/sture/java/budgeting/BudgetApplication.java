@@ -8,7 +8,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.sture.java.budgeting.controller.home.export.HomeController;
+import org.sture.java.budgeting.controller.home.IHomeController;
+import org.sture.java.budgeting.controller.settings.SettingsSceneFactory;
 import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
+import org.sture.java.budgeting.controller.statusbar.export.StatusBarController;
 import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.modules.BaseModule;
 import org.sture.java.budgeting.providers.ProviderModule;
@@ -46,7 +50,7 @@ public class BudgetApplication extends Application {
         Scene scene = MainSceneFactory(container);
 
         stage.setScene(scene);
-//        stage.setScene(SettingsSceneFactory.Build(getClass(), container).scene);
+        SettingsSceneFactory.Build(getClass(), container);
 
         Image image = new Image("budget-icon.png");
         stage.getIcons().add(image);
@@ -70,7 +74,7 @@ public class BudgetApplication extends Application {
             FXMLLoader statusBarViewLoader = new FXMLLoader(getClass().getResource("status-bar.fxml"));
             Parent statusBarView = statusBarViewLoader.load();
             StatusBarController statusBarController = statusBarViewLoader.getController();
-            container.Register(IStatusBarController.class, statusBarController);
+            container.RegisterController(IStatusBarController.class, statusBarController);
 
             Developer.DebugMessage("Loading status-bar.fxml: " + (statusBarView != null ? "success" : "failed"));
             Developer.DeindentDebugMessagesOnce();
@@ -81,7 +85,7 @@ public class BudgetApplication extends Application {
             FXMLLoader homeViewLoader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
             Parent homeView = homeViewLoader.load();
             HomeController homeController = homeViewLoader.getController();
-            container.Register(HomeController.class, homeController);
+            container.RegisterController(IHomeController.class, homeController);
 
             Developer.DebugMessage("Loading home-view.fxml: " + (homeView != null ? "success" : "failed"));
             Developer.DeindentDebugMessagesOnce();
@@ -102,9 +106,5 @@ public class BudgetApplication extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-    }
-
-    public static DiContainer getContainer(){
-        return container;
     }
 }

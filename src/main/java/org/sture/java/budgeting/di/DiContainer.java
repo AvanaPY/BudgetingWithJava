@@ -1,4 +1,5 @@
 package org.sture.java.budgeting.di;
+import org.sture.java.budgeting.controller.iface.BudgetController;
 import org.sture.java.budgeting.developer.Developer;
 import org.sture.java.budgeting.exceptions.di.*;
 
@@ -72,6 +73,17 @@ public class DiContainer {
         Developer.DebugMessage(this + " registered <" + iclazz + ">/<" + clazz + "> as " + registerType);
     }
 
+
+    /**
+     * Registers and initializes a JavaFX controller along with its instance.
+     * @param iController A controller interface
+     * @param controllerInstance A controller instance
+     */
+    public <T extends BudgetController> void RegisterController(Class<T> iController, T controllerInstance) {
+        controllerInstance.InitializeControllerWithContainer(this);
+        Register(iController, controllerInstance);
+    }
+
     /**
      * Attempts to resolve an instance of a class or interface based on what has been registered so far through {@code Register}
      * @param clazz A class of which to attempt resolving.
@@ -82,38 +94,44 @@ public class DiContainer {
     public <T> T ResolveInstance(Class<T> clazz) throws FailedToResolveClassException, ClassNotRegisteredException {
         Developer.DebugMessage("Resolving " + clazz.getSimpleName(), true);
 
+        T instance = null;
+
         if(singletonRegisteredCache.containsKey(clazz)) {
             Developer.DebugMessage("Returns singleton instance of " + clazz.getSimpleName());
-            Developer.DeindentDebugMessagesOnce();
-            return clazz.cast(singletonRegisteredCache.get(clazz));
+            instance = clazz.cast(singletonRegisteredCache.get(clazz));
         }
 
-        if(!classInterfaces.contains(clazz))
+        if(instance == null && !classInterfaces.contains(clazz))
             throw new ClassNotRegisteredException(clazz);
 
-        T instance;
-        try {
-            Constructor<?> constructor = ResolveConstructor(clazz);
+        if (instance == null)
+        {
+            try {
+                Constructor<?> constructor = ResolveConstructor(clazz);
 
-            Object[] dependencies = ResolveDependenciesForConstructor(constructor);
-            Developer.DebugMessage("Found constructor and dependencies for " + clazz.getSimpleName());
-            Developer.DeindentDebugMessagesOnce();
+                Object[] dependencies = ResolveDependenciesForConstructor(constructor);
+                Developer.DebugMessage("Found constructor and dependencies for " + clazz.getSimpleName());
 
-            instance = clazz.cast(constructor.newInstance(dependencies));
-        } catch (ClassNotRegisteredException e) {
-            throw new FailedToResolveClassException(clazz, e);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new FailedToResolveClassException(clazz, "Constructor could not create instance of class", e);
+                instance = clazz.cast(constructor.newInstance(dependencies));
+            } catch (ClassNotRegisteredException e) {
+                throw new FailedToResolveClassException(clazz, e);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new FailedToResolveClassException(clazz, "Constructor could not create instance of class", e);
+            }
+
+            Developer.DebugMessage("Resolved " + clazz.getSimpleName() + " as " + instance);
+
+            if(registerTypeMap.get(clazz) == RegisterType.Singleton) {
+                storeInstanceOfSingleton(clazz, instance);
+                Developer.IndentDebugMessagesOnce();
+                Developer.DebugMessage("Caching instance as Singleton");
+                Developer.DeindentDebugMessagesOnce();
+            }
         }
 
-        Developer.DebugMessage("Resolved " + clazz.getSimpleName() + " as " + instance);
-
-        if(registerTypeMap.get(clazz) == RegisterType.Singleton) {
-            storeInstanceOfSingleton(clazz, instance);
-            Developer.IndentDebugMessagesOnce();
-            Developer.DebugMessage("Caching instance as Singleton");
-            Developer.DeindentDebugMessagesOnce();
-        }
+        // ´instance´ cannot be null here
+        Developer.DeindentDebugMessagesOnce();
+        Developer.DebugMessage("Resolve returning (" + clazz.getSimpleName() + ") " + instance);
 
         return instance;
     }

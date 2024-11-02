@@ -31,7 +31,7 @@ public class DirectoryFileProvider {
     }
 
     private static void CheckDataDirectoryAndTestDirectoryAreDifferent(){
-        if(!dataDirectory.toString().equals(dataDirectoryDuringTestHarness.toString()))
+        if(dataDirectory.toString().equals(dataDirectoryDuringTestHarness.toString()))
             throw new RuntimeException("Data directory and testing data directory must be different");
     }
 }

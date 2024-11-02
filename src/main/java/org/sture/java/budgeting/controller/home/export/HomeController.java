@@ -1,7 +1,9 @@
-package org.sture.java.budgeting;
+package org.sture.java.budgeting.controller.home.export;
 
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
+import org.sture.java.budgeting.BudgetApplication;
+import org.sture.java.budgeting.controller.home.IHomeController;
 import org.sture.java.budgeting.controller.settings.SettingsSceneFactory;
 import org.sture.java.budgeting.developer.Developer;
 import org.sture.java.budgeting.di.DiContainer;
@@ -24,7 +26,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 
 @SuppressWarnings({"ClassEscapesDefinedScope", "SameParameterValue"})
-public class HomeController {
+public class HomeController implements IHomeController {
     // Widgets for displaying data in our table view
     @FXML TableView<TrackingEntry> trackingTableView;
     @FXML TableColumn<TrackingEntry, LocalDate> dateColumn;
@@ -52,8 +54,9 @@ public class HomeController {
     private String lastProgressText;
     private TrackingEntry selectedTrackingEntry;
 
-    public void initialize() {
-        container = BudgetApplication.getContainer();
+    @Override
+    public void InitializeControllerWithContainer(DiContainer container) {
+        this.container = container;
         trackingService = container.ResolveInstance(TrackingService.class);
         trackingService.initialize();
         trackingService.loadStoreIfExists();
@@ -98,13 +101,15 @@ public class HomeController {
     }
 
     public void buttonDownloadTestStatusBar(){
-        BudgetApplication.getContainer().ResolveInstance(
+        container.ResolveInstance(
                 BackgroundJobExecutionService.class).LaunchBackgroundJob(new DummyJob(UUID.randomUUID()));
     }
 
     public void buttonOpenSettingsWindow() {
-        Stage stage = SettingsSceneFactory.Build(getClass(), container).stage;
-        Platform.runLater(stage::showAndWait);
+        Platform.runLater(() -> {
+                Stage stage = SettingsSceneFactory.Build(BudgetApplication.class, container).stage;
+                stage.showAndWait();
+            });
     }
 
     private void initializeComboBoxes() {
@@ -220,6 +225,7 @@ public class HomeController {
     public void exitApplication(ActionEvent event){
         System.out.println("owo");
     }
+
 
     private static class DummyJob extends Job {
         public DummyJob(UUID uuid) {

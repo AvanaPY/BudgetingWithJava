@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.sture.java.budgeting.SettingsController;
+import org.sture.java.budgeting.controller.settings.export.SettingsController;
 import org.sture.java.budgeting.di.DiContainer;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class SettingsSceneFactory {
             FXMLLoader settingsSceneLoader = new FXMLLoader(applicationClazz.getResource("settings-scene.fxml"));
             Parent settingsScene = settingsSceneLoader.load();
             SettingsController controller = settingsSceneLoader.getController();
-            container.Register(SettingsController.class, controller);
+            container.RegisterController(SettingsController.class, controller);
 
             root.getChildren().add(settingsScene);
             Scene scene = new Scene(root);

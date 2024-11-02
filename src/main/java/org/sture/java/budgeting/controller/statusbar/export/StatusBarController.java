@@ -1,4 +1,4 @@
-package org.sture.java.budgeting;
+package org.sture.java.budgeting.controller.statusbar.export;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
 import org.sture.java.budgeting.controller.statusbar.IStatusBarController;
 import org.sture.java.budgeting.controller.statusbar.ProgressionRecord;
+import org.sture.java.budgeting.di.DiContainer;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -20,8 +21,10 @@ public class StatusBarController implements IStatusBarController {
 
     private HashMap<UUID, ProgressionRecord> ongoingProgressesMap;
 
-    public void initialize() {
+    @Override
+    public void InitializeControllerWithContainer(DiContainer container) {
         ongoingProgressesMap = new HashMap<>();
+
     }
 
     public void SetProgressMessageTo(UUID uuid, String msg){

@@ -2,7 +2,7 @@ package org.sture.java.budgeting.controller.settings;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.sture.java.budgeting.SettingsController;
+import org.sture.java.budgeting.controller.settings.export.SettingsController;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class SettingsControllerScenePackage {

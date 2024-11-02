@@ -1,17 +1,19 @@
-package org.sture.java.budgeting;
+package org.sture.java.budgeting.controller.settings.export;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
+import org.sture.java.budgeting.controller.iface.BudgetController;
 import org.sture.java.budgeting.controller.settings.CategoryCell;
+import org.sture.java.budgeting.di.DiContainer;
 import org.sture.java.budgeting.services.category.CategoryService;
 import org.sture.java.budgeting.services.tracking.models.BudgetEntryCategory;
 
 import java.util.Arrays;
 
-public class SettingsController {
+public class SettingsController implements BudgetController {
     @FXML ListView<BudgetEntryCategory> categoriesListView;
     @FXML ListView<BudgetEntryCategory> subCategoriesListView;
 
@@ -20,8 +22,9 @@ public class SettingsController {
 
     private CategoryService categoryService;
 
-    public void initialize(){
-        categoryService = BudgetApplication.getContainer().ResolveInstance(CategoryService.class);
+    @Override
+    public void InitializeControllerWithContainer(DiContainer container) {
+        categoryService = container.ResolveInstance(CategoryService.class);
 
         categoriesListView.setCellFactory(budgetEntryCategoryListView -> new CategoryCell());
         categoriesListView.setOnMouseClicked(mouseEvent -> {
