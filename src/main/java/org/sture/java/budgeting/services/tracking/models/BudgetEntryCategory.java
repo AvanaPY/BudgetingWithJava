@@ -3,8 +3,8 @@ package org.sture.java.budgeting.services.tracking.models;
 import java.io.Serializable;
 
 public class BudgetEntryCategory implements Serializable {
-    private final String name;
-    private final boolean isPositive;
+    private String name;
+    private boolean isPositive;
     private BudgetEntryCategory[] subCategories;
 
     public BudgetEntryCategory(String name, boolean isPositive, BudgetEntryCategory[] subCategories){
@@ -25,16 +25,35 @@ public class BudgetEntryCategory implements Serializable {
         return name;
     }
 
+    public void setName(String name){
+        this.name = name;
+    }
+
     public boolean isPositive(){
         return isPositive;
+    }
+
+    public void setIsPositive(boolean isPositive){
+        this.isPositive = isPositive;
     }
 
     public BudgetEntryCategory GetSubCategory(int index){
         return subCategories[index];
     }
 
+    public BudgetEntryCategory GetSubCategoryByName(String subCategoryName) {
+        for(var cat : subCategories)
+            if(cat.name().equals(subCategoryName))
+                return cat;
+        return null;
+    }
+
     public BudgetEntryCategory[] GetSubCategories(){
         return subCategories;
+    }
+
+    public void setSubCategories(BudgetEntryCategory[] subCategories){
+        this.subCategories = subCategories;
     }
 
     public void AddSubCategory(BudgetEntryCategory subCategory){
@@ -47,6 +66,32 @@ public class BudgetEntryCategory implements Serializable {
         BudgetEntryCategory[] newArray = new BudgetEntryCategory[subCategories.length + 1];
         System.arraycopy(subCategories, 0, newArray, 0, subCategories.length);
         newArray[newArray.length - 1] = subCategory;
+        subCategories = newArray;
+    }
+
+    public void deleteSubCategory(BudgetEntryCategory subCategory){
+        if(subCategory == null)
+            return;
+
+        boolean found = false;
+        for(var cat : subCategories) {
+            if (cat == subCategory) {
+                found = true;
+                break;
+            }
+        }
+
+        if(!found)
+            return;
+
+        BudgetEntryCategory[] newArray = new BudgetEntryCategory[subCategories.length - 1];
+        int idx = 0;
+        for(var cat : subCategories){
+            if(cat != subCategory){
+                newArray[idx] = cat;
+                idx++;
+            }
+        }
         subCategories = newArray;
     }
 

@@ -97,7 +97,7 @@ public class HomeController implements IHomeController {
 
         datePicker.setValue(LocalDate.now());
         initializeComboBoxes();
-        updateCategoryComboBoxFromTypeComboBoxActiveType();
+        updateSubCategoryComboBoxFromSelectedCategoryComboBox();
     }
 
     public void buttonDownloadTestStatusBar(){
@@ -106,10 +106,8 @@ public class HomeController implements IHomeController {
     }
 
     public void buttonOpenSettingsWindow() {
-        Platform.runLater(() -> {
-                Stage stage = SettingsSceneFactory.Build(BudgetApplication.class, container).stage;
-                stage.showAndWait();
-            });
+        Stage stage = SettingsSceneFactory.Build(BudgetApplication.class, container).stage;
+        stage.showAndWait();
     }
 
     private void initializeComboBoxes() {
@@ -120,11 +118,14 @@ public class HomeController implements IHomeController {
         budgetEntrySubCategoryComboBox.setValue(trackingService.GetBudgetSubCategoryList().getFirst());
     }
 
-    private void updateCategoryComboBoxFromTypeComboBoxActiveType() {
+    private void updateSubCategoryComboBoxFromSelectedCategoryComboBox() {
         BudgetEntryCategory activeCategory = budgetEntryCategoryComboBox.getValue();
         trackingService.UpdateCategories(activeCategory);
 
-        budgetEntrySubCategoryComboBox.setValue(trackingService.GetBudgetSubCategoryList().getFirst());
+        if(!trackingService.GetBudgetSubCategoryList().isEmpty()){
+            var selectedCategory = trackingService.GetBudgetSubCategoryList().getFirst();
+            budgetEntrySubCategoryComboBox.setValue(selectedCategory);
+        }
     }
 
     public void buttonAddNewEntry() {
@@ -164,7 +165,7 @@ public class HomeController implements IHomeController {
     }
 
     public void budgetTypeComboBoxOnAction() {
-        updateCategoryComboBoxFromTypeComboBoxActiveType();
+        updateSubCategoryComboBoxFromSelectedCategoryComboBox();
     }
 
     public void selectTrackingEntry(TrackingEntry entry) {

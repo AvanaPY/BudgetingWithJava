@@ -63,7 +63,6 @@ public class CategoryCell extends ListCell<BudgetEntryCategory> {
             return;
         }
 
-
         lastItem = item;
         label.setText(item.toString());
         isPositiveCheckBox.setSelected(item.isPositive());

@@ -15,17 +15,12 @@ public class Developer {
     {
         if(DEBUG)
         {
-//            String indentStr = "  ".repeat(debugMessageIndent);
             String indentStr = generateIndentString();
             System.out.println(indentStr + message);
 
             if(indentAfter)
                 IndentDebugMessagesOnce();
         }
-    }
-
-    public static String generateIndentString(){
-        return " ".repeat(debugMessageIndent);
     }
 
     public static void DebugMessage(String message) {
@@ -52,5 +47,9 @@ public class Developer {
     public static void DeindentDebugMessagesOnce()
     {
         debugMessageIndent = Math.max(0, debugMessageIndent - 1);
+    }
+
+    private static String generateIndentString(){
+        return " ".repeat(debugMessageIndent);
     }
 }

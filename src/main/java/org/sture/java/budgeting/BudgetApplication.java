@@ -50,7 +50,8 @@ public class BudgetApplication extends Application {
         Scene scene = MainSceneFactory(container);
 
         stage.setScene(scene);
-        SettingsSceneFactory.Build(getClass(), container);
+        var settingsScene = SettingsSceneFactory.Build(getClass(), container);
+        //stage.setScene(settingsScene.scene);
 
         Image image = new Image("budget-icon.png");
         stage.getIcons().add(image);

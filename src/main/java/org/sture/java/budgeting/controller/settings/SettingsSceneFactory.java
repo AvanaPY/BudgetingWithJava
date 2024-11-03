@@ -39,7 +39,7 @@ public class SettingsSceneFactory {
             p = new SettingsControllerScenePackage(stage, scene, controller);
             return p;
         } catch (IOException e) {
-            throw new RuntimeException("I/O Error: " + e);
+            throw new RuntimeException("I/O Error: " + e, e);
         }
     }
 }
